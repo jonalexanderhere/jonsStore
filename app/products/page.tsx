@@ -1,0 +1,330 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { useCartStore } from '@/lib/store'
+import { formatPrice } from '@/lib/utils'
+import { Search, Filter, Star, ShoppingCart, Heart } from 'lucide-react'
+import { Product } from '@/lib/types'
+
+export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [sortBy, setSortBy] = useState('name')
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000000 })
+  const [isLoading, setIsLoading] = useState(true)
+  const { addItem } = useCartStore()
+
+  // Mock data - replace with actual API call
+  useEffect(() => {
+    const mockProducts: Product[] = [
+      {
+        id: '1',
+        name: 'iPhone 15 Pro Max',
+        description: 'Smartphone terbaru dengan teknologi canggih',
+        price: 19999000,
+        original_price: 22999000,
+        images: ['/images/iphone.jpg'],
+        category_id: '1',
+        category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
+        stock: 50,
+        is_active: true,
+        is_featured: true,
+        tags: ['smartphone', 'apple', 'premium'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: 'MacBook Air M2',
+        description: 'Laptop ringan dengan performa tinggi',
+        price: 15999000,
+        original_price: 17999000,
+        images: ['/images/macbook.jpg'],
+        category_id: '1',
+        category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
+        stock: 30,
+        is_active: true,
+        is_featured: true,
+        tags: ['laptop', 'apple', 'work'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: '3',
+        name: 'Sony WH-1000XM5',
+        description: 'Headphone noise cancelling premium',
+        price: 3999000,
+        original_price: 4999000,
+        images: ['/images/headphones.jpg'],
+        category_id: '1',
+        category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
+        stock: 100,
+        is_active: true,
+        is_featured: false,
+        tags: ['headphone', 'audio', 'sony'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: '4',
+        name: 'Nike Air Max 270',
+        description: 'Sepatu olahraga dengan teknologi terbaru',
+        price: 1999000,
+        original_price: 2499000,
+        images: ['/images/nike.jpg'],
+        category_id: '2',
+        category: { id: '2', name: 'Fashion', description: '', is_active: true, created_at: '', updated_at: '' },
+        stock: 75,
+        is_active: true,
+        is_featured: false,
+        tags: ['sepatu', 'nike', 'olahraga'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ]
+    
+    setProducts(mockProducts)
+    setFilteredProducts(mockProducts)
+    setIsLoading(false)
+  }, [])
+
+  // Filter and search products
+  useEffect(() => {
+    let filtered = products
+
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    }
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(product => product.category.name === selectedCategory)
+    }
+
+    // Price range filter
+    filtered = filtered.filter(product => 
+      product.price >= priceRange.min && product.price <= priceRange.max
+    )
+
+    // Sort products
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low':
+          return a.price - b.price
+        case 'price-high':
+          return b.price - a.price
+        case 'name':
+          return a.name.localeCompare(b.name)
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        default:
+          return 0
+      }
+    })
+
+    setFilteredProducts(filtered)
+  }, [products, searchQuery, selectedCategory, sortBy, priceRange])
+
+  const categories = ['all', 'Elektronik', 'Fashion', 'Rumah & Taman', 'Olahraga']
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Memuat produk...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Semua Produk</h1>
+          <p className="text-gray-600">Temukan produk terbaik sesuai kebutuhan Anda</p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar Filters */}
+          <div className="lg:w-1/4">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Filter Produk</h3>
+              
+              {/* Search */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cari Produk
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Cari produk..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kategori
+                </label>
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <label key={category} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="category"
+                        value={category}
+                        checked={selectedCategory === category}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                      />
+                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                        {category === 'all' ? 'Semua Kategori' : category}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Rentang Harga
+                </label>
+                <div className="space-y-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange({...priceRange, min: Number(e.target.value)})}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})}
+                  />
+                </div>
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Urutkan Berdasarkan
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="name">Nama A-Z</option>
+                  <option value="price-low">Harga Terendah</option>
+                  <option value="price-high">Harga Tertinggi</option>
+                  <option value="newest">Terbaru</option>
+                </select>
+              </div>
+            </Card>
+          </div>
+
+          {/* Products Grid */}
+          <div className="lg:w-3/4">
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-gray-600">
+                Menampilkan {filteredProducts.length} dari {products.length} produk
+              </p>
+              <div className="flex items-center space-x-2">
+                <Filter className="h-4 w-4 text-gray-400" />
+                <span className="text-sm text-gray-600">Filter Aktif</span>
+              </div>
+            </div>
+
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">Tidak ada produk yang ditemukan</p>
+                <p className="text-gray-400">Coba ubah filter atau kata kunci pencarian</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map((product) => (
+                  <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+                    <div className="relative">
+                      <div className="h-48 bg-gray-200 rounded-t-lg"></div>
+                      {product.is_featured && (
+                        <Badge className="absolute top-2 left-2 bg-red-500">
+                          Featured
+                        </Badge>
+                      )}
+                      <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
+                        <Heart className="h-4 w-4 text-gray-400" />
+                      </button>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-2 group-hover:text-primary-600 transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="flex items-center mb-3">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-600 ml-2">(4.0)</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg font-bold text-primary-600">
+                            {formatPrice(product.price)}
+                          </span>
+                          {product.original_price && (
+                            <span className="text-sm text-gray-500 line-through">
+                              {formatPrice(product.original_price)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          Stok: {product.stock}
+                        </span>
+                      </div>
+                      <Button
+                        className="w-full"
+                        onClick={() => addItem(product)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Tambah ke Keranjang
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

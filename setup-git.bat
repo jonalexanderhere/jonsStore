@@ -1,0 +1,23 @@
+@echo off
+echo Setting up Git repository and pushing to GitHub...
+
+echo Initializing Git repository...
+git init
+
+echo Adding all files...
+git add .
+
+echo Committing files...
+git commit -m "first commit"
+
+echo Setting main branch...
+git branch -M main
+
+echo Adding remote origin...
+git remote add origin https://github.com/jonalexanderhere/jonsStore.git
+
+echo Pushing to GitHub...
+git push -u origin main
+
+echo Done! Repository has been pushed to GitHub.
+pause
