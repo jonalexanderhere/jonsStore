@@ -6,24 +6,39 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowRight, Star, Truck, Shield, Headphones, Zap } from 'lucide-react'
 
 export default function HomePage() {
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case "truck":
+        return <Truck className="h-6 w-6" />
+      case "shield":
+        return <Shield className="h-6 w-6" />
+      case "headphones":
+        return <Headphones className="h-6 w-6" />
+      case "zap":
+        return <Zap className="h-6 w-6" />
+      default:
+        return null
+    }
+  }
+
   const features = [
     {
-      icon: <Truck className="h-6 w-6" />,
+      icon: "truck",
       title: "Pengiriman Cepat",
       description: "Pengiriman ke seluruh Indonesia dengan estimasi 1-3 hari kerja"
     },
     {
-      icon: <Shield className="h-6 w-6" />,
+      icon: "shield",
       title: "100% Aman",
       description: "Transaksi aman dengan sistem keamanan berlapis"
     },
     {
-      icon: <Headphones className="h-6 w-6" />,
+      icon: "headphones",
       title: "24/7 Support",
       description: "Customer service siap membantu Anda kapan saja"
     },
     {
-      icon: <Zap className="h-6 w-6" />,
+      icon: "zap",
       title: "Kualitas Terjamin",
       description: "Produk berkualitas tinggi dengan garansi resmi"
     }
@@ -150,7 +165,7 @@ export default function HomePage() {
               <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="mx-auto w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 mb-4">
-                    {feature.icon}
+                    {getIcon(feature.icon)}
                   </div>
                   <CardTitle className="text-lg">{feature.title}</CardTitle>
                 </CardHeader>
@@ -254,12 +269,12 @@ export default function HomePage() {
             ))}
           </div>
           <div className="text-center mt-8">
-            <Link href="/products">
-              <Button size="lg">
+            <Button size="lg" asChild>
+              <Link href="/products">
                 Lihat Semua Produk
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -274,16 +289,16 @@ export default function HomePage() {
             Daftar sekarang dan dapatkan diskon 10% untuk pembelian pertama
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register">
-              <Button size="lg" className="bg-white text-primary-600 hover:bg-gray-100">
+            <Button size="lg" className="bg-white text-primary-600 hover:bg-gray-100" asChild>
+              <Link href="/auth/register">
                 Daftar Sekarang
-              </Button>
-            </Link>
-            <Link href="/products">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary-600">
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary-600" asChild>
+              <Link href="/products">
                 Mulai Belanja
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
