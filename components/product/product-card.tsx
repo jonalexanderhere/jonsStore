@@ -179,3 +179,4 @@ export default function ProductCard({ product, onAddToWishlist, onViewProduct }:
     </Card>
   )
 }
+

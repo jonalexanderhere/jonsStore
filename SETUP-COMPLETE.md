@@ -196,3 +196,4 @@ Jika mengalami masalah:
 
 **Repository:** https://github.com/jonalexanderhere/jonsStore
 **Live Demo:** Akan tersedia setelah deployment
+

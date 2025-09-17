@@ -283,3 +283,4 @@ CREATE POLICY "Users can delete own wishlist" ON public.wishlist FOR DELETE USIN
 
 -- Coupons are public for reading
 CREATE POLICY "Coupons are viewable by everyone" ON public.coupons FOR SELECT USING (is_active = true);
+

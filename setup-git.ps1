@@ -20,3 +20,4 @@ git push -u origin main
 
 Write-Host "Done! Repository has been pushed to GitHub." -ForegroundColor Green
 Write-Host "You can now view your repository at: https://github.com/jonalexanderhere/jonsStore" -ForegroundColor Cyan
+

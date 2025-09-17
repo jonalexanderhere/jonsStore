@@ -9,6 +9,7 @@ import { useCartStore } from '@/lib/store'
 import { formatPrice } from '@/lib/utils'
 import { Search, Filter, Star, ShoppingCart, Heart } from 'lucide-react'
 import { Product } from '@/lib/types'
+import ProductCard from '@/components/product/product-card'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -263,62 +264,16 @@ export default function ProductsPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
-                  <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
-                    <div className="relative">
-                      <div className="h-48 bg-gray-200 rounded-t-lg"></div>
-                      {product.is_featured && (
-                        <Badge className="absolute top-2 left-2 bg-red-500">
-                          Featured
-                        </Badge>
-                      )}
-                      <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
-                        <Heart className="h-4 w-4 text-gray-400" />
-                      </button>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-lg mb-2 group-hover:text-primary-600 transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center mb-3">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-gray-600 ml-2">(4.0)</span>
-                      </div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-primary-600">
-                            {formatPrice(product.price)}
-                          </span>
-                          {product.original_price && (
-                            <span className="text-sm text-gray-500 line-through">
-                              {formatPrice(product.original_price)}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-500">
-                          Stok: {product.stock}
-                        </span>
-                      </div>
-                      <Button
-                        className="w-full"
-                        onClick={() => addItem(product)}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Tambah ke Keranjang
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <ProductCard 
+                    key={product.id} 
+                    product={product}
+                    onAddToWishlist={(productId) => {
+                      console.log('Add to wishlist:', productId)
+                    }}
+                    onViewProduct={(productId) => {
+                      console.log('View product:', productId)
+                    }}
+                  />
                 ))}
               </div>
             )}
@@ -328,3 +283,4 @@ export default function ProductsPage() {
     </div>
   )
 }
+

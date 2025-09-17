@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Home, ArrowLeft, Search } from 'lucide-react'
@@ -48,3 +50,4 @@ export default function NotFound() {
     </div>
   )
 }
+

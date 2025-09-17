@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatPrice } from '@/lib/utils'
 import { ArrowRight, Package } from 'lucide-react'
 import { Category, Product } from '@/lib/types'
+import ProductCard from '@/components/product/product-card'
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -182,42 +183,16 @@ export default function CategoriesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
-                <div className="relative">
-                  <div className="aspect-square bg-gray-200 rounded-t-lg"></div>
-                  <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-                    Featured
-                  </Badge>
-                </div>
-                <CardContent className="p-4">
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="text-xs">
-                      {product.category.name}
-                    </Badge>
-                    <h3 className="font-semibold text-lg text-gray-900 group-hover:text-primary-600 transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-primary-600">
-                          {formatPrice(product.price)}
-                        </span>
-                        {product.original_price && (
-                          <span className="text-sm text-gray-500 line-through">
-                            {formatPrice(product.original_price)}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-sm text-gray-500">
-                        Stok: {product.stock}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <ProductCard 
+                key={product.id} 
+                product={product}
+                onAddToWishlist={(productId) => {
+                  console.log('Add to wishlist:', productId)
+                }}
+                onViewProduct={(productId) => {
+                  console.log('View product:', productId)
+                }}
+              />
             ))}
           </div>
         </div>
@@ -249,3 +224,4 @@ export default function CategoriesPage() {
     </div>
   )
 }
+
