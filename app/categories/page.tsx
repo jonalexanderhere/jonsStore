@@ -14,119 +14,65 @@ export default function CategoriesPage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Mock data - replace with actual API call
+  // Fetch data from Supabase
   useEffect(() => {
-    const mockCategories: Category[] = [
-      {
-        id: '1',
-        name: 'Elektronik',
-        description: 'Produk elektronik dan gadget terbaru dengan teknologi canggih',
-        image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        name: 'Fashion',
-        description: 'Pakaian dan aksesoris fashion terkini untuk gaya modern',
-        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '3',
-        name: 'Rumah & Taman',
-        description: 'Furnitur dan dekorasi rumah untuk hunian yang nyaman',
-        image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '4',
-        name: 'Olahraga',
-        description: 'Perlengkapan olahraga dan fitness untuk gaya hidup sehat',
-        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '5',
-        name: 'Kecantikan',
-        description: 'Produk kecantikan dan perawatan tubuh untuk penampilan optimal',
-        image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '6',
-        name: 'Buku',
-        description: 'Buku dan literatur berbagai genre untuk menambah wawasan',
-        image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ]
+    const fetchData = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase')
+        const supabase = createClient()
+        
+        // Fetch categories
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('is_active', true)
+          .order('name')
 
-    const mockFeaturedProducts: Product[] = [
-      {
-        id: '1',
-        name: 'iPhone 15 Pro Max',
-        description: 'Smartphone terbaru dengan teknologi canggih',
-        price: 19999000,
-        original_price: 22999000,
-        images: ['/images/iphone.jpg'],
-        category_id: '1',
-        category: mockCategories[0],
-        stock: 50,
-        is_active: true,
-        is_featured: true,
-        tags: ['smartphone', 'apple', 'premium'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        name: 'MacBook Air M2',
-        description: 'Laptop ringan dengan performa tinggi',
-        price: 15999000,
-        original_price: 17999000,
-        images: ['/images/macbook.jpg'],
-        category_id: '1',
-        category: mockCategories[0],
-        stock: 30,
-        is_active: true,
-        is_featured: true,
-        tags: ['laptop', 'apple', 'work'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '3',
-        name: 'Nike Air Max 270',
-        description: 'Sepatu olahraga dengan teknologi terbaru',
-        price: 1999000,
-        original_price: 2499000,
-        images: ['/images/nike.jpg'],
-        category_id: '4',
-        category: mockCategories[3],
-        stock: 75,
-        is_active: true,
-        is_featured: true,
-        tags: ['sepatu', 'nike', 'olahraga'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ]
+        // Fetch featured products
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select(`
+            *,
+            category:categories(*)
+          `)
+          .eq('is_active', true)
+          .eq('is_featured', true)
+          .order('created_at', { ascending: false })
+          .limit(6)
 
-    setCategories(mockCategories)
-    setFeaturedProducts(mockFeaturedProducts)
-    setIsLoading(false)
+        if (categoriesError) {
+          console.error('Error fetching categories:', categoriesError)
+        } else {
+          setCategories(categoriesData || [])
+        }
+
+        if (productsError) {
+          console.error('Error fetching products:', productsError)
+        } else {
+          setFeaturedProducts(productsData || [])
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        // Fallback to mock data
+        const mockCategories: Category[] = [
+          {
+            id: '1',
+            name: 'Elektronik',
+            description: 'Produk elektronik dan gadget terbaru dengan teknologi canggih',
+            image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]
+        setCategories(mockCategories)
+        setFeaturedProducts([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
 
   if (isLoading) {

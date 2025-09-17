@@ -21,78 +21,57 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { addItem } = useCartStore()
 
-  // Mock data - replace with actual API call
+  // Fetch products from Supabase
   useEffect(() => {
-    const mockProducts: Product[] = [
-      {
-        id: '1',
-        name: 'iPhone 15 Pro Max',
-        description: 'Smartphone terbaru dengan teknologi canggih',
-        price: 19999000,
-        original_price: 22999000,
-        images: ['/images/iphone.jpg'],
-        category_id: '1',
-        category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
-        stock: 50,
-        is_active: true,
-        is_featured: true,
-        tags: ['smartphone', 'apple', 'premium'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        name: 'MacBook Air M2',
-        description: 'Laptop ringan dengan performa tinggi',
-        price: 15999000,
-        original_price: 17999000,
-        images: ['/images/macbook.jpg'],
-        category_id: '1',
-        category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
-        stock: 30,
-        is_active: true,
-        is_featured: true,
-        tags: ['laptop', 'apple', 'work'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '3',
-        name: 'Sony WH-1000XM5',
-        description: 'Headphone noise cancelling premium',
-        price: 3999000,
-        original_price: 4999000,
-        images: ['/images/headphones.jpg'],
-        category_id: '1',
-        category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
-        stock: 100,
-        is_active: true,
-        is_featured: false,
-        tags: ['headphone', 'audio', 'sony'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: '4',
-        name: 'Nike Air Max 270',
-        description: 'Sepatu olahraga dengan teknologi terbaru',
-        price: 1999000,
-        original_price: 2499000,
-        images: ['/images/nike.jpg'],
-        category_id: '2',
-        category: { id: '2', name: 'Fashion', description: '', is_active: true, created_at: '', updated_at: '' },
-        stock: 75,
-        is_active: true,
-        is_featured: false,
-        tags: ['sepatu', 'nike', 'olahraga'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    const fetchProducts = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase')
+        const supabase = createClient()
+        
+        const { data: productsData, error } = await supabase
+          .from('products')
+          .select(`
+            *,
+            category:categories(*)
+          `)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.error('Error fetching products:', error)
+          // Fallback to mock data if database fails
+          const mockProducts: Product[] = [
+            {
+              id: '1',
+              name: 'iPhone 15 Pro Max',
+              description: 'Smartphone terbaru dengan teknologi canggih',
+              price: 19999000,
+              original_price: 22999000,
+              images: ['https://images.unsplash.com/photo-1592899677977-9c10b588e3a9?w=500&h=500&fit=crop'],
+              category_id: '1',
+              category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
+              stock: 50,
+              is_active: true,
+              is_featured: true,
+              tags: ['smartphone', 'apple', 'premium'],
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+          ]
+          setProducts(mockProducts)
+          setFilteredProducts(mockProducts)
+        } else {
+          setProducts(productsData || [])
+          setFilteredProducts(productsData || [])
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      } finally {
+        setIsLoading(false)
       }
-    ]
-    
-    setProducts(mockProducts)
-    setFilteredProducts(mockProducts)
-    setIsLoading(false)
+    }
+
+    fetchProducts()
   }, [])
 
   // Filter and search products

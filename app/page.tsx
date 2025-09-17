@@ -1,13 +1,52 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight, Star, Truck, Shield, Headphones, Zap } from 'lucide-react'
+import { Product } from '@/lib/types'
+import ProductCard from '@/components/product/product-card'
 
 export default function HomePage() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch featured products from Supabase
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase')
+        const supabase = createClient()
+        
+        const { data: productsData, error } = await supabase
+          .from('products')
+          .select(`
+            *,
+            category:categories(*)
+          `)
+          .eq('is_active', true)
+          .eq('is_featured', true)
+          .order('created_at', { ascending: false })
+          .limit(4)
+
+        if (error) {
+          console.error('Error fetching featured products:', error)
+        } else {
+          setFeaturedProducts(productsData || [])
+        }
+      } catch (error) {
+        console.error('Error fetching featured products:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchFeaturedProducts()
+  }, [])
+
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "truck":
@@ -69,44 +108,7 @@ export default function HomePage() {
     }
   ]
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "iPhone 15 Pro Max",
-      price: 19999000,
-      originalPrice: 22999000,
-      image: "/images/iphone.jpg",
-      rating: 4.8,
-      reviews: 124
-    },
-    {
-      id: 2,
-      name: "MacBook Air M2",
-      price: 15999000,
-      originalPrice: 17999000,
-      image: "/images/macbook.jpg",
-      rating: 4.9,
-      reviews: 89
-    },
-    {
-      id: 3,
-      name: "Sony WH-1000XM5",
-      price: 3999000,
-      originalPrice: 4999000,
-      image: "/images/headphones.jpg",
-      rating: 4.7,
-      reviews: 203
-    },
-    {
-      id: 4,
-      name: "Samsung Galaxy S24",
-      price: 12999000,
-      originalPrice: 14999000,
-      image: "/images/samsung.jpg",
-      rating: 4.6,
-      reviews: 156
-    }
-  ]
+  // Featured products are now fetched from Supabase
 
   return (
     <div className="min-h-screen">
@@ -228,48 +230,30 @@ export default function HomePage() {
               Produk terbaik dengan harga spesial untuk Anda
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
-                <div className="relative">
-                  <div className="h-48 bg-gray-200 rounded-t-lg"></div>
-                  <Badge className="absolute top-2 left-2 bg-red-500">
-                    Sale
-                  </Badge>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary-600 transition-colors">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center mb-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(product.rating)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600 ml-2">
-                      ({product.reviews})
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-primary-600">
-                      Rp {product.price.toLocaleString('id-ID')}
-                    </span>
-                    <span className="text-sm text-gray-500 line-through">
-                      Rp {product.originalPrice.toLocaleString('id-ID')}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product}
+                  onAddToWishlist={(productId) => {
+                    console.log('Add to wishlist:', productId)
+                  }}
+                  onViewProduct={(productId) => {
+                    console.log('View product:', productId)
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Tidak ada produk unggulan tersedia</p>
+            </div>
+          )}
           <div className="text-center mt-8">
             <Button size="lg" asChild>
               <Link href="/products">
