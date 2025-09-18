@@ -77,16 +77,32 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Buat Akun Baru</CardTitle>
-            <CardDescription>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Professional background pattern */}
+      <div className="absolute inset-0 bg-gray-50">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 opacity-50"></div>
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <User className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Buat Akun Baru
+            </h2>
+            <p className="text-gray-600">
               Daftar sekarang dan nikmati pengalaman berbelanja terbaik
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+
+          <div className="professional-card p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -98,7 +114,7 @@ export default function RegisterPage() {
                     id="fullName"
                     type="text"
                     placeholder="Masukkan nama lengkap Anda"
-                    className="pl-10"
+                    className="pl-10 input-professional w-full"
                     {...register('fullName', {
                       required: 'Nama lengkap wajib diisi',
                       minLength: {
@@ -123,7 +139,7 @@ export default function RegisterPage() {
                     id="email"
                     type="email"
                     placeholder="Masukkan email Anda"
-                    className="pl-10"
+                    className="pl-10 input-professional w-full"
                     {...register('email', {
                       required: 'Email wajib diisi',
                       pattern: {
@@ -148,7 +164,7 @@ export default function RegisterPage() {
                     id="phone"
                     type="tel"
                     placeholder="Masukkan nomor telepon Anda"
-                    className="pl-10"
+                    className="pl-10 input-professional w-full"
                     {...register('phone', {
                       required: 'Nomor telepon wajib diisi',
                       pattern: {
@@ -173,7 +189,7 @@ export default function RegisterPage() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Masukkan password Anda"
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 input-professional w-full"
                     {...register('password', {
                       required: 'Password wajib diisi',
                       minLength: {
@@ -209,7 +225,7 @@ export default function RegisterPage() {
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Konfirmasi password Anda"
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 input-professional w-full"
                     {...register('confirmPassword', {
                       required: 'Konfirmasi password wajib diisi',
                       validate: value => value === password || 'Password tidak cocok'
@@ -250,7 +266,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full btn-primary h-12 font-semibold"
                 disabled={isLoading}
               >
                 {isLoading ? 'Memproses...' : 'Daftar Sekarang'}
@@ -289,13 +305,13 @@ export default function RegisterPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Sudah punya akun?{' '}
-                <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-500">
+                <Link href="/auth/login" className="font-semibold text-blue-600 hover:text-blue-500">
                   Masuk di sini
                 </Link>
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
