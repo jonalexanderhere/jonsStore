@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -22,12 +22,12 @@ import {
   Minus,
   Plus,
   ArrowLeft,
-  Check
+  // Check
 } from 'lucide-react'
 
 export default function ProductDetailPage() {
   const params = useParams()
-  const router = useRouter()
+  // const router = useRouter()
   const [product, setProduct] = useState<Product | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
@@ -55,32 +55,8 @@ export default function ProductDetailPage() {
 
         if (error) {
           console.error('Error fetching product:', error)
-          // Fallback to mock data if product not found
-          const mockProduct: Product = {
-            id: params.id as string,
-            name: 'Produk Tidak Ditemukan',
-            description: 'Produk yang Anda cari tidak tersedia atau sudah tidak aktif.',
-            price: 0,
-            original_price: 0,
-            images: [],
-            category_id: '1',
-            category: { 
-              id: '1', 
-              name: 'Tidak Diketahui', 
-              description: '', 
-              is_active: true, 
-              created_at: '', 
-              updated_at: '' 
-            },
-            stock: 0,
-            is_active: false,
-            is_featured: false,
-            tags: [],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-          setProduct(mockProduct)
-        } else {
+          setProduct(null)
+        } else if (productData) {
           setProduct(productData as Product)
         }
       } catch (error) {

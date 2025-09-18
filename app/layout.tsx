@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
-import { ToastContainer } from '@/components/ui/modern-toast'
+// import { ToastContainer } from '@/components/ui/modern-toast'
 import { AuthProvider } from '@/components/auth/auth-provider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -28,7 +28,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </AuthProvider>
-        <ToastContainer toasts={[]} onRemove={() => {}} />
+        {/* ToastContainer will be handled by individual pages */}
       </body>
     </html>
   )

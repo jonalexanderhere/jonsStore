@@ -44,7 +44,7 @@ const toastVariants = {
   }
 }
 
-export function ModernToast({ id, type, title, message, duration = 5000, onClose }: ToastProps) {
+export function ModernToast({ type, title, message, duration = 5000, onClose }: Omit<ToastProps, 'id'>) {
   const [isVisible, setIsVisible] = useState(true)
   const [progress, setProgress] = useState(100)
   

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ShoppingCart, User, Search, Menu, X, LogOut } from 'lucide-react'
@@ -18,7 +18,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
   const { getTotalItems } = useCartStore()
-  const { user, loading, refreshUser } = useAuth()
+  const { user, refreshUser } = useAuth()
 
   const handleSignOut = async () => {
     try {
@@ -26,7 +26,7 @@ export default function Header() {
       await refreshUser()
       toast.success('Berhasil logout')
       router.push('/')
-    } catch (error) {
+    } catch {
       toast.error('Gagal logout')
     }
   }

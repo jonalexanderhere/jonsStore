@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/lib/store'
 import { formatPrice } from '@/lib/utils'
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Shield, Truck } from 'lucide-react'
-import Image from 'next/image'
+// import Image from 'next/image'
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems, clearCart } = useCartStore()

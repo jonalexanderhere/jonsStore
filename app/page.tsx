@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { ArrowRight, Star, Truck, Shield, Headphones, Zap } from 'lucide-react'
+import { ArrowRight, Truck, Shield, Headphones, Zap } from 'lucide-react'
 import { Product } from '@/lib/types'
 import ProductCard from '@/components/product/product-card'
 

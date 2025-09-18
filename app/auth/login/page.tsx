@@ -1,15 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase'
-import { useModernToast } from '@/components/ui/modern-toast'
+import { useModernToast, ToastContainer } from '@/components/ui/modern-toast'
 import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Shield, Zap } from 'lucide-react'
 
 interface LoginForm {
@@ -64,7 +64,7 @@ export default function LoginPage() {
       } else {
         router.push('/')
       }
-    } catch (error) {
+    } catch {
       showError('Terjadi Kesalahan', 'Silakan coba lagi nanti', 5000)
     } finally {
       setIsLoading(false)

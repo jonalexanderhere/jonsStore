@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { formatPrice } from '@/lib/utils'
-import { ArrowRight, Package } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { ArrowRight } from 'lucide-react'
 import { Category, Product } from '@/lib/types'
 import ProductCard from '@/components/product/product-card'
 

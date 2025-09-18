@@ -50,7 +50,7 @@ export default function RegisterPage() {
 
       toast.success('Pendaftaran berhasil! Silakan cek email untuk verifikasi.')
       router.push('/auth/login')
-    } catch (error) {
+    } catch {
       toast.error('Terjadi kesalahan saat pendaftaran')
     } finally {
       setIsLoading(false)

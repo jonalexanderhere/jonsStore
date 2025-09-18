@@ -19,12 +19,21 @@ import {
 import { formatPrice, formatDate } from '@/lib/utils'
 import { useAuth } from '@/components/auth/auth-provider'
 import { createClient } from '@/lib/supabase'
+import { Product } from '@/lib/types'
+
+interface Order {
+  id: string
+  customer: string
+  amount: number
+  status: string
+  date: string
+}
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(true)
-  const [products, setProducts] = useState<any[]>([])
-  const [orders, setOrders] = useState<any[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalRevenue: 0,
@@ -86,7 +95,7 @@ export default function AdminDashboard() {
           .limit(10)
 
         // Fetch users count
-        const { count: usersCount, error: usersError } = await supabase
+        const { count: usersCount } = await supabase
           .from('users')
           .select('*', { count: 'exact', head: true })
 
