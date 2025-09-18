@@ -12,7 +12,9 @@
     "create:admin": "node scripts/create-admin.js",
     "setup:db": "node scripts/setup-database.js",
     "setup:vercel": "node scripts/setup-vercel-database.js",
-    "setup:complete": "node scripts/setup-complete-database.js"
+    "setup:complete": "node scripts/setup-complete-database.js",
+    "test:advanced": "node scripts/advanced-testing.js",
+    "setup:jonsstore": "node scripts/setup-jonsstore-database.js"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

@@ -9,8 +9,8 @@ import { AuthProvider } from '@/components/auth/auth-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'E-Commerce - Belanja Online Terpercaya',
-  description: 'Platform e-commerce terpercaya untuk semua kebutuhan Anda. Produk berkualitas dengan harga terbaik.',
+  title: 'JonsStore - E-commerce Terpercaya',
+  description: 'JonsStore - Platform e-commerce terpercaya dengan produk berkualitas tinggi dan layanan terbaik untuk semua kebutuhan Anda.',
 }
 
 export default function RootLayout({

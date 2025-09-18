@@ -126,7 +126,7 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Selamat Datang
+              Selamat Datang di JonsStore
             </h1>
             <p className="text-gray-600 text-lg">
               Masuk ke akun Anda untuk melanjutkan
