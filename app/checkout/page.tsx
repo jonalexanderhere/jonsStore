@@ -49,7 +49,7 @@ export default function CheckoutPage() {
       
       toast.success('Pesanan berhasil dibuat!')
       router.push('/orders/success')
-    } catch (error) {
+    } catch {
       toast.error('Terjadi kesalahan saat memproses pesanan')
     } finally {
       setIsProcessing(false)

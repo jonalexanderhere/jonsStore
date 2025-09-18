@@ -1,13 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/lib/store'
-import { formatPrice } from '@/lib/utils'
-import { Search, Filter, Star, ShoppingCart, Heart } from 'lucide-react'
+import { Search, Filter } from 'lucide-react'
 import { Product } from '@/lib/types'
 import ProductCard from '@/components/product/product-card'
 
@@ -19,7 +16,7 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState('name')
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000000 })
   const [isLoading, setIsLoading] = useState(true)
-  const { addItem } = useCartStore()
+  const { } = useCartStore()
 
   // Fetch products from Supabase
   useEffect(() => {

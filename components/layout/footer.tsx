@@ -8,10 +8,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">E-Commerce</h3>
+            <h3 className="text-xl font-bold">JonsStore</h3>
             <p className="text-gray-300 text-sm">
-              Platform e-commerce terpercaya untuk semua kebutuhan Anda. 
-              Menyediakan produk berkualitas dengan pelayanan terbaik.
+              Platform e-commerce terpercaya dengan produk berkualitas tinggi dan layanan terbaik 
+              untuk semua kebutuhan Anda.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -46,8 +46,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Kontak
+                <Link href="/terms" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Syarat & Ketentuan
                 </Link>
               </li>
             </ul>
@@ -86,7 +86,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-300 text-sm">info@ecommerce.com</span>
+                <span className="text-gray-300 text-sm">info@jonsstore.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-gray-400" />
@@ -95,8 +95,8 @@ export default function Footer() {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-4 w-4 text-gray-400 mt-1" />
                 <span className="text-gray-300 text-sm">
-                  Jl. Contoh No. 123<br />
-                  Jakarta, Indonesia 12345
+                  Jl. Teknologi No. 123<br />
+                  Jakarta Selatan, Indonesia 12345
                 </span>
               </div>
             </div>
