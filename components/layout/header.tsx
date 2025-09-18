@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ShoppingCart, User, Search, Menu, X, LogOut } from 'lucide-react'
@@ -8,23 +8,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/lib/store'
-import { createClient } from '@/lib/supabase'
+import { useAuth } from '@/components/auth/auth-provider'
+import { signOut } from '@/lib/auth'
 import { toast } from 'react-hot-toast'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
   const { getTotalItems } = useCartStore()
+  const { user, loading, refreshUser } = useAuth()
 
   const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    setUser(null)
-    toast.success('Berhasil logout')
-    router.push('/')
+    try {
+      await signOut()
+      await refreshUser()
+      toast.success('Berhasil logout')
+      router.push('/')
+    } catch (error) {
+      toast.error('Gagal logout')
+    }
   }
 
   return (

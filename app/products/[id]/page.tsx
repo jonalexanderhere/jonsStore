@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useCartStore } from '@/lib/store'
 import { formatPrice } from '@/lib/utils'
+import { Product } from '@/lib/types'
 import { 
   Star, 
   ShoppingCart, 
@@ -23,7 +24,6 @@ import {
   ArrowLeft,
   Check
 } from 'lucide-react'
-import { Product } from '@/lib/types'
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -36,39 +36,63 @@ export default function ProductDetailPage() {
   const [isInWishlist, setIsInWishlist] = useState(false)
   const { addItem } = useCartStore()
 
-  // Mock product data - replace with actual API call
+  // Fetch product data from Supabase
   useEffect(() => {
-    const mockProduct: Product = {
-      id: params.id as string,
-      name: 'iPhone 15 Pro Max',
-      description: 'iPhone 15 Pro Max dengan chip A17 Pro yang revolusioner, sistem kamera Pro yang canggih, dan desain titanium yang tahan lama. Nikmati performa luar biasa dan fotografi profesional dalam satu perangkat.',
-      price: 19999000,
-      original_price: 22999000,
-      images: [
-        '/images/iphone-1.jpg',
-        '/images/iphone-2.jpg',
-        '/images/iphone-3.jpg',
-        '/images/iphone-4.jpg'
-      ],
-      category_id: '1',
-      category: { 
-        id: '1', 
-        name: 'Elektronik', 
-        description: 'Produk elektronik dan gadget terbaru', 
-        is_active: true, 
-        created_at: '', 
-        updated_at: '' 
-      },
-      stock: 50,
-      is_active: true,
-      is_featured: true,
-      tags: ['smartphone', 'apple', 'premium', 'camera', '5g'],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    const fetchProduct = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase')
+        const supabase = createClient()
+        
+        const { data: productData, error } = await supabase
+          .from('products')
+          .select(`
+            *,
+            category:categories(*)
+          `)
+          .eq('id', params.id)
+          .eq('is_active', true)
+          .single()
+
+        if (error) {
+          console.error('Error fetching product:', error)
+          // Fallback to mock data if product not found
+          const mockProduct: Product = {
+            id: params.id as string,
+            name: 'Produk Tidak Ditemukan',
+            description: 'Produk yang Anda cari tidak tersedia atau sudah tidak aktif.',
+            price: 0,
+            original_price: 0,
+            images: [],
+            category_id: '1',
+            category: { 
+              id: '1', 
+              name: 'Tidak Diketahui', 
+              description: '', 
+              is_active: true, 
+              created_at: '', 
+              updated_at: '' 
+            },
+            stock: 0,
+            is_active: false,
+            is_featured: false,
+            tags: [],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setProduct(mockProduct)
+        } else {
+          setProduct(productData as Product)
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    
-    setProduct(mockProduct)
-    setIsLoading(false)
+
+    if (params.id) {
+      fetchProduct()
+    }
   }, [params.id])
 
   const handleAddToCart = async () => {
@@ -122,15 +146,18 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Produk Tidak Ditemukan</h2>
-          <p className="text-gray-600 mb-8">Produk yang Anda cari tidak tersedia</p>
-          <Link href="/products">
-            <Button>Kembali ke Produk</Button>
-          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Produk Tidak Ditemukan</h1>
+          <p className="text-gray-600 mb-6">Produk yang Anda cari tidak tersedia atau sudah tidak aktif.</p>
+          <Button asChild>
+            <Link href="/products">
+              Kembali ke Daftar Produk
+            </Link>
+          </Button>
         </div>
       </div>
     )
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50">

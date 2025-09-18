@@ -3,7 +3,8 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
-import { Toaster } from 'react-hot-toast'
+import { ToastContainer } from '@/components/ui/modern-toast'
+import { AuthProvider } from '@/components/auth/auth-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,12 +21,14 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={inter.className}>
-        <Header />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
-        <Toaster position="top-right" />
+        <AuthProvider>
+          <Header />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
+        <ToastContainer toasts={[]} onRemove={() => {}} />
       </body>
     </html>
   )

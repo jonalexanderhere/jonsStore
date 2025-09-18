@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:admin": "node scripts/test-admin-login.js",
+    "test:all": "node scripts/test-all-features.js",
+    "create:admin": "node scripts/create-admin.js"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
