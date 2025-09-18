@@ -4,7 +4,7 @@ export interface User {
   id: string
   email: string
   full_name: string
-  role: 'user' | 'admin'
+  role: 'customer' | 'admin'
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -23,7 +23,31 @@ export async function getCurrentUser(): Promise<User | null> {
       .eq('id', user.id)
       .single()
 
-    if (userError || !userData) {
+    if (userError) {
+      // If user doesn't exist in users table, create it
+      if (userError.code === 'PGRST116') {
+        const { data: newUserData, error: createError } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email!,
+            full_name: user.user_metadata?.full_name || user.email!.split('@')[0],
+            role: user.user_metadata?.role || 'customer'
+          })
+          .select('id, email, full_name, role')
+          .single()
+
+        if (createError || !newUserData) {
+          console.error('Error creating user profile:', createError)
+          return null
+        }
+
+        return newUserData as User
+      }
+      return null
+    }
+
+    if (!userData) {
       return null
     }
 
