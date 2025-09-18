@@ -11,7 +11,8 @@
     "test:all": "node scripts/test-all-features.js",
     "create:admin": "node scripts/create-admin.js",
     "setup:db": "node scripts/setup-database.js",
-    "setup:vercel": "node scripts/setup-vercel-database.js"
+    "setup:vercel": "node scripts/setup-vercel-database.js",
+    "setup:complete": "node scripts/setup-complete-database.js"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

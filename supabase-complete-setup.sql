@@ -1,18 +1,28 @@
 -- =====================================================
--- SUPABASE DATABASE SETUP FOR VERCEL DEPLOYMENT
+-- COMPLETE SUPABASE DATABASE SETUP FOR E-COMMERCE
 -- =====================================================
 -- Run this script in your Supabase SQL Editor
--- This will create all necessary tables and sample data
+-- This will create all necessary tables, functions, and sample data
 
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =====================================================
--- 1. CREATE TABLES
+-- 1. DROP EXISTING TABLES (if they exist)
+-- =====================================================
+
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- =====================================================
+-- 2. CREATE TABLES
 -- =====================================================
 
 -- Categories table
-CREATE TABLE IF NOT EXISTS categories (
+CREATE TABLE categories (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
@@ -22,7 +32,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 -- Products table
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     description TEXT,
@@ -39,7 +49,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 -- Users table (extends Supabase auth.users)
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id UUID REFERENCES auth.users(id) PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
@@ -51,7 +61,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Orders table
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES users(id),
     total_amount DECIMAL(10,2) NOT NULL,
@@ -65,7 +75,7 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 -- Order items table
-CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE order_items (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
     product_id UUID REFERENCES products(id),
@@ -75,19 +85,19 @@ CREATE TABLE IF NOT EXISTS order_items (
 );
 
 -- =====================================================
--- 2. CREATE INDEXES FOR PERFORMANCE
+-- 3. CREATE INDEXES FOR PERFORMANCE
 -- =====================================================
 
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
-CREATE INDEX IF NOT EXISTS idx_products_featured ON products(is_featured);
-CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
-CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
-CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_active ON products(is_active);
+CREATE INDEX idx_products_featured ON products(is_featured);
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_order_items_order ON order_items(order_id);
+CREATE INDEX idx_order_items_product ON order_items(product_id);
 
 -- =====================================================
--- 3. INSERT SAMPLE CATEGORIES
+-- 4. INSERT SAMPLE CATEGORIES
 -- =====================================================
 
 INSERT INTO categories (id, name, description, is_active) VALUES
@@ -98,11 +108,10 @@ INSERT INTO categories (id, name, description, is_active) VALUES
 ('550e8400-e29b-41d4-a716-446655440005', 'Kecantikan', 'Produk kecantikan dan perawatan diri', true),
 ('550e8400-e29b-41d4-a716-446655440006', 'Buku', 'Buku dan literatur', true),
 ('550e8400-e29b-41d4-a716-446655440007', 'Makanan & Minuman', 'Makanan dan minuman', true),
-('550e8400-e29b-41d4-a716-446655440008', 'Mainan & Hobi', 'Mainan dan produk hobi', true)
-ON CONFLICT (id) DO NOTHING;
+('550e8400-e29b-41d4-a716-446655440008', 'Mainan & Hobi', 'Mainan dan produk hobi', true);
 
 -- =====================================================
--- 4. INSERT SAMPLE PRODUCTS
+-- 5. INSERT SAMPLE PRODUCTS
 -- =====================================================
 
 INSERT INTO products (id, name, description, price, original_price, images, category_id, stock, is_active, is_featured, tags) VALUES
@@ -115,24 +124,60 @@ INSERT INTO products (id, name, description, price, original_price, images, cate
 ('650e8400-e29b-41d4-a716-446655440007', 'Skincare Set', 'Set perawatan kulit lengkap', 899000, 1199000, ARRAY['https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=500', 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=500'], '550e8400-e29b-41d4-a716-446655440005', 200, true, false, ARRAY['skincare', 'kecantikan', 'perawatan']),
 ('650e8400-e29b-41d4-a716-446655440008', 'Buku Programming', 'Buku panduan programming untuk pemula', 299000, 399000, ARRAY['https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500', 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500'], '550e8400-e29b-41d4-a716-446655440006', 500, true, false, ARRAY['buku', 'programming', 'teknologi']),
 ('650e8400-e29b-41d4-a716-446655440009', 'Kopi Premium', 'Kopi arabika premium dari Jawa', 149000, 199000, ARRAY['https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500', 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500'], '550e8400-e29b-41d4-a716-446655440007', 1000, true, false, ARRAY['kopi', 'minuman', 'premium']),
-('650e8400-e29b-41d4-a716-446655440010', 'Lego Creator', 'Set Lego Creator untuk hobi', 1299000, 1599000, ARRAY['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500'], '550e8400-e29b-41d4-a716-446655440008', 80, true, false, ARRAY['lego', 'mainan', 'hobi'])
-ON CONFLICT (id) DO NOTHING;
+('650e8400-e29b-41d4-a716-446655440010', 'Lego Creator', 'Set Lego Creator untuk hobi', 1299000, 1599000, ARRAY['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500'], '550e8400-e29b-41d4-a716-446655440008', 80, true, false, ARRAY['lego', 'mainan', 'hobi']);
 
 -- =====================================================
--- 5. CREATE ADMIN USER
+-- 6. CREATE FUNCTIONS
 -- =====================================================
 
--- Insert admin user into auth.users (this will be handled by the application)
--- The admin user will be created with email: admin@jonsstore.com
--- Password: admin123456
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
 
--- Insert admin profile into users table
-INSERT INTO users (id, email, full_name, role) VALUES
-('ae0c03c8-5ec7-4736-80e3-11cf918b5be1', 'admin@jonsstore.com', 'Admin JonsStore', 'admin')
-ON CONFLICT (id) DO NOTHING;
+-- Function to handle user registration
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.users (id, email, full_name, role)
+    VALUES (
+        NEW.id,
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+        COALESCE(NEW.raw_user_meta_data->>'role', 'customer')
+    );
+    RETURN NEW;
+END;
+$$ language 'plpgsql' SECURITY DEFINER;
 
 -- =====================================================
--- 6. CREATE ROW LEVEL SECURITY (RLS) POLICIES
+-- 7. CREATE TRIGGERS
+-- =====================================================
+
+-- Create triggers for updated_at
+CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger to automatically create user profile on signup
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- =====================================================
+-- 8. CREATE ROW LEVEL SECURITY (RLS) POLICIES
 -- =====================================================
 
 -- Enable RLS on all tables
@@ -157,12 +202,18 @@ CREATE POLICY "Users can view their own profile" ON users
 CREATE POLICY "Users can update their own profile" ON users
     FOR UPDATE USING (auth.uid() = id);
 
+CREATE POLICY "Users can insert their own profile" ON users
+    FOR INSERT WITH CHECK (auth.uid() = id);
+
 -- Orders policies
 CREATE POLICY "Users can view their own orders" ON orders
     FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can create their own orders" ON orders
     FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own orders" ON orders
+    FOR UPDATE USING (auth.uid() = user_id);
 
 -- Order items policies
 CREATE POLICY "Users can view order items for their orders" ON order_items
@@ -184,33 +235,7 @@ CREATE POLICY "Users can create order items for their orders" ON order_items
     );
 
 -- =====================================================
--- 7. CREATE FUNCTIONS
--- =====================================================
-
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Create triggers for updated_at
-CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- =====================================================
--- 8. CREATE VIEWS FOR ANALYTICS
+-- 9. CREATE VIEWS FOR ANALYTICS
 -- =====================================================
 
 -- View for product analytics
@@ -241,11 +266,33 @@ GROUP BY DATE_TRUNC('day', o.created_at)
 ORDER BY order_date DESC;
 
 -- =====================================================
+-- 10. INSERT ADMIN USER
+-- =====================================================
+
+-- Insert admin user into auth.users (this will be handled by the application)
+-- The admin user will be created with email: admin@jonsstore.com
+-- Password: admin123456
+
+-- Insert admin profile into users table
+INSERT INTO users (id, email, full_name, role) VALUES
+('ae0c03c8-5ec7-4736-80e3-11cf918b5be1', 'admin@jonsstore.com', 'Admin JonsStore', 'admin')
+ON CONFLICT (id) DO NOTHING;
+
+-- =====================================================
 -- COMPLETION MESSAGE
 -- =====================================================
 
 -- This script has been completed successfully!
 -- Your Supabase database is now ready for the e-commerce application.
+-- 
+-- Features included:
+-- ✅ Complete table structure
+-- ✅ Sample data (categories, products)
+-- ✅ User registration handling
+-- ✅ RLS security policies
+-- ✅ Performance indexes
+-- ✅ Analytics views
+-- ✅ Admin user setup
 -- 
 -- Next steps:
 -- 1. Run this script in your Supabase SQL Editor

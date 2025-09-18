@@ -47,6 +47,30 @@ export default function LoginPage() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       
       if (authUser) {
+        // Ensure user profile exists in database
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single()
+
+        if (!existingUser) {
+          // Create user profile if it doesn't exist
+          const { error: profileError } = await supabase
+            .from('users')
+            .insert({
+              id: authUser.id,
+              email: authUser.email!,
+              full_name: authUser.user_metadata?.full_name || authUser.email!.split('@')[0],
+              role: authUser.user_metadata?.role || 'customer'
+            })
+
+          if (profileError) {
+            console.log('Profile creation error:', profileError.message)
+          }
+        }
+
+        // Get user role
         const { data: userData } = await supabase
           .from('users')
           .select('role')

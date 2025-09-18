@@ -48,6 +48,25 @@ export default function RegisterPage() {
         return
       }
 
+      // The user profile will be automatically created by the database trigger
+      // But we can also manually create it as a fallback
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email!,
+            full_name: data.fullName,
+            phone: data.phone,
+            role: 'customer'
+          })
+
+        if (profileError) {
+          console.log('Profile creation error (may already exist):', profileError.message)
+        }
+      }
+
       toast.success('Pendaftaran berhasil! Silakan cek email untuk verifikasi.')
       router.push('/auth/login')
     } catch {
