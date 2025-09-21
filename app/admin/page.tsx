@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { useAuth } from '@/components/auth/auth-provider'
-import { createClient } from '@/lib/supabase'
+import { createClient, subscribeToProducts, subscribeToOrders, subscribeToNotifications } from '@/lib/supabase'
 import { Product } from '@/lib/types'
 
 interface Order {
@@ -44,6 +44,8 @@ export default function AdminDashboard() {
     productsGrowth: 0,
     usersGrowth: 0
   })
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
   
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -165,6 +167,92 @@ export default function AdminDashboard() {
     }
 
     fetchData()
+  }, [user])
+
+  // Real-time subscriptions for admin dashboard
+  useEffect(() => {
+    if (!user || user.role !== 'admin') return
+
+    // Subscribe to product updates
+    const productSubscription = subscribeToProducts((payload) => {
+      console.log('Real-time product update:', payload)
+      
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updatedProduct = payload.new as Product
+        
+        setProducts(prev => {
+          const existingIndex = prev.findIndex(p => p.id === updatedProduct.id)
+          if (existingIndex >= 0) {
+            const updated = [...prev]
+            updated[existingIndex] = updatedProduct
+            return updated
+          } else {
+            return [updatedProduct, ...prev]
+          }
+        })
+      } else if (payload.eventType === 'DELETE') {
+        setProducts(prev => 
+          prev.filter(p => p.id !== payload.old.id)
+        )
+      }
+    })
+
+    // Subscribe to order updates
+    const orderSubscription = subscribeToOrders(user.id, (payload) => {
+      console.log('Real-time order update:', payload)
+      
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updatedOrder = payload.new
+        
+        setOrders(prev => {
+          const existingIndex = prev.findIndex(o => o.id === updatedOrder.id)
+          if (existingIndex >= 0) {
+            const updated = [...prev]
+            updated[existingIndex] = {
+              id: updatedOrder.id,
+              customer: updatedOrder.user?.full_name || 'Unknown Customer',
+              amount: updatedOrder.total_amount,
+              status: updatedOrder.status,
+              date: updatedOrder.created_at
+            }
+            return updated
+          } else {
+            return [{
+              id: updatedOrder.id,
+              customer: updatedOrder.user?.full_name || 'Unknown Customer',
+              amount: updatedOrder.total_amount,
+              status: updatedOrder.status,
+              date: updatedOrder.created_at
+            }, ...prev]
+          }
+        })
+      }
+    })
+
+    // Subscribe to notifications
+    const notificationSubscription = subscribeToNotifications(user.id, (payload) => {
+      console.log('Real-time notification:', payload)
+      
+      if (payload.eventType === 'INSERT') {
+        const newNotification = payload.new
+        setNotifications(prev => [newNotification, ...prev])
+        setUnreadNotifications(prev => prev + 1)
+      } else if (payload.eventType === 'UPDATE') {
+        const updatedNotification = payload.new
+        setNotifications(prev => 
+          prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
+        )
+        if (updatedNotification.is_read) {
+          setUnreadNotifications(prev => Math.max(0, prev - 1))
+        }
+      }
+    })
+
+    return () => {
+      productSubscription.unsubscribe()
+      orderSubscription.unsubscribe()
+      notificationSubscription.unsubscribe()
+    }
   }, [user])
 
   if (authLoading || isLoading) {

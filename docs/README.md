@@ -1,0 +1,286 @@
+# 🏪 JonsStore - E-commerce Platform
+
+JonsStore adalah platform e-commerce modern yang dibangun dengan Next.js 14, Supabase, dan Tailwind CSS. Platform ini menyediakan pengalaman berbelanja yang aman, mudah, dan terpercaya untuk pelanggan dan admin.
+
+## ✨ Fitur Utama
+
+### 🛍️ Untuk Pelanggan
+- **Beranda Modern**: Tampilan profesional dengan produk unggulan
+- **Katalog Produk**: Jelajahi berbagai kategori produk
+- **Detail Produk**: Informasi lengkap dengan gambar berkualitas
+- **Keranjang Belanja**: Kelola produk yang akan dibeli
+- **Checkout**: Proses pembelian yang aman
+- **Riwayat Pesanan**: Pantau status pesanan Anda
+- **Autentikasi**: Login/Register dengan email atau sosial media (Google, Facebook)
+
+### 👨‍💼 Untuk Admin
+- **Dashboard Lengkap**: Statistik penjualan dan kinerja
+- **Manajemen Produk**: Tambah, edit, hapus produk
+- **Manajemen Pesanan**: Kelola pesanan pelanggan
+- **Manajemen Pengguna**: Pantau data pelanggan
+- **Analytics**: Laporan penjualan dan performa
+
+## 🚀 Teknologi yang Digunakan
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS, Framer Motion
+- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **UI Components**: Radix UI, Lucide React
+- **State Management**: Zustand
+- **Forms**: React Hook Form
+- **Notifications**: Custom Toast System
+
+## 📋 Prasyarat
+
+- Node.js 18+ 
+- npm atau yarn
+- Akun Supabase
+- Git
+
+## 🛠️ Instalasi
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/jonalexanderhere/jonsStore.git
+cd jonsStore
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+# atau
+yarn install
+```
+
+### 3. Setup Environment Variables
+Buat file `.env.local` di root directory:
+
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Optional: Stripe (untuk payment)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+```
+
+### 4. Setup Database
+Jalankan script setup database:
+
+```bash
+# Setup database lengkap
+npm run setup:jonsstore
+
+# Atau setup manual di Supabase SQL Editor
+# Jalankan file: supabase-jonsstore-complete.sql
+```
+
+### 5. Jalankan Development Server
+```bash
+npm run dev
+```
+
+Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
+
+## 🗄️ Database Schema
+
+### Tables
+- **categories**: Kategori produk
+- **products**: Data produk
+- **users**: Data pengguna (extends Supabase auth)
+- **orders**: Pesanan pelanggan
+- **order_items**: Item dalam pesanan
+
+### Views
+- **product_analytics**: Analitik produk
+- **order_analytics**: Analitik pesanan
+
+### Functions
+- **handle_new_user()**: Auto-create user profile
+- **calculate_order_total()**: Hitung total pesanan
+- **update_updated_at_column()**: Update timestamp
+
+## 🔐 Autentikasi
+
+### Login Methods
+1. **Email/Password**: Login tradisional
+2. **Google OAuth**: Login dengan Google
+3. **Facebook OAuth**: Login dengan Facebook
+
+### User Roles
+- **customer**: Pelanggan biasa
+- **admin**: Administrator dengan akses penuh
+
+### Admin Credentials (Default)
+```
+Email: admin@jonsstore.com
+Password: admin123456
+```
+
+## 📱 Halaman dan Route
+
+### Public Routes
+- `/` - Beranda
+- `/products` - Katalog produk
+- `/products/[id]` - Detail produk
+- `/categories` - Kategori produk
+- `/auth/login` - Login
+- `/auth/register` - Register
+- `/auth/callback` - OAuth callback
+
+### Protected Routes
+- `/cart` - Keranjang belanja
+- `/checkout` - Proses checkout
+- `/orders` - Riwayat pesanan
+- `/admin` - Dashboard admin (admin only)
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+# Test semua fitur
+npm run test:all
+
+# Test advanced (comprehensive)
+npm run test:advanced
+
+# Test admin login
+npm run test:admin
+```
+
+### Test Coverage
+- ✅ Database connection
+- ✅ Authentication flow
+- ✅ Product queries
+- ✅ Order system
+- ✅ RLS policies
+- ✅ Performance tests
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+1. Push code ke GitHub
+2. Connect repository ke Vercel
+3. Add environment variables di Vercel dashboard
+4. Deploy
+
+### Environment Variables untuk Production
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_production_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_production_service_role_key
+```
+
+## 📊 Performance
+
+- **Build Size**: ~117KB (First Load JS)
+- **Lighthouse Score**: 90+ (Performance, Accessibility, SEO)
+- **Database Queries**: Optimized dengan indexes
+- **Image Optimization**: Next.js Image component
+
+## 🔧 Scripts Available
+
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+
+# Database
+npm run setup:jonsstore    # Setup complete database
+npm run setup:complete     # Setup database (alternative)
+npm run create:admin       # Create admin user
+
+# Testing
+npm run test:all           # Test all features
+npm run test:advanced      # Advanced testing suite
+npm run test:admin         # Test admin functionality
+```
+
+## 🎨 Design System
+
+### Colors
+- **Primary**: Blue (#3b82f6)
+- **Secondary**: Gray (#6b7280)
+- **Background**: White/Gray-50
+- **Accent**: Blue variants
+
+### Components
+- **Cards**: Professional card dengan hover effects
+- **Buttons**: Primary (blue) dan Secondary (outline)
+- **Inputs**: Professional styling dengan focus states
+- **Typography**: Clean dan readable fonts
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Error**
+   - Pastikan environment variables sudah benar
+   - Check Supabase project status
+
+2. **Login Redirect Issue**
+   - Clear browser cache
+   - Check auth state di browser dev tools
+
+3. **Build Errors**
+   - Run `npm run lint` untuk check warnings
+   - Pastikan semua dependencies terinstall
+
+4. **OAuth Login Issues**
+   - Pastikan OAuth providers sudah dikonfigurasi di Supabase
+   - Check redirect URLs
+
+## 📈 Monitoring
+
+### Analytics
+- Product performance tracking
+- Order analytics
+- User behavior insights
+
+### Logs
+- Authentication logs
+- Error tracking
+- Performance monitoring
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 👥 Team
+
+- **Developer**: JonsStore Team
+- **Design**: Professional UI/UX
+- **Backend**: Supabase Integration
+
+## 📞 Support
+
+Untuk pertanyaan atau bantuan:
+- Create issue di GitHub
+- Email: support@jonsstore.com
+- Documentation: [Wiki](https://github.com/jonalexanderhere/jonsStore/wiki)
+
+## 🔄 Changelog
+
+### v1.0.0 (Latest)
+- ✅ Complete e-commerce functionality
+- ✅ Professional design system
+- ✅ Google & Facebook login
+- ✅ Admin dashboard
+- ✅ Advanced testing suite
+- ✅ Production ready
+
+---
+
+**JonsStore** - Platform e-commerce terpercaya untuk semua kebutuhan Anda! 🛍️✨

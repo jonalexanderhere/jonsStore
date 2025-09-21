@@ -7,6 +7,7 @@ import { useCartStore } from '@/lib/store'
 import { Search, Filter } from 'lucide-react'
 import { Product } from '@/lib/types'
 import ProductCard from '@/components/product/product-card'
+import { createClient, subscribeToProducts } from '@/lib/supabase'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -22,7 +23,6 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { createClient } = await import('@/lib/supabase')
         const supabase = createClient()
         
         const { data: productsData, error } = await supabase
@@ -50,6 +50,39 @@ export default function ProductsPage() {
     }
 
     fetchProducts()
+  }, [])
+
+  // Real-time subscription for product updates
+  useEffect(() => {
+    const subscription = subscribeToProducts((payload) => {
+      console.log('Real-time product update:', payload)
+      
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updatedProduct = payload.new as Product
+        
+        setProducts(prev => {
+          const existingIndex = prev.findIndex(p => p.id === updatedProduct.id)
+          if (existingIndex >= 0) {
+            // Update existing product
+            const updated = [...prev]
+            updated[existingIndex] = updatedProduct
+            return updated
+          } else {
+            // Add new product
+            return [updatedProduct, ...prev]
+          }
+        })
+      } else if (payload.eventType === 'DELETE') {
+        // Remove deleted product
+        setProducts(prev => 
+          prev.filter(p => p.id !== payload.old.id)
+        )
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   // Filter and search products

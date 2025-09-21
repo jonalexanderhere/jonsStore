@@ -1,286 +1,187 @@
-# 🏪 JonsStore - E-commerce Platform
+# Modern E-commerce Platform
 
-JonsStore adalah platform e-commerce modern yang dibangun dengan Next.js 14, Supabase, dan Tailwind CSS. Platform ini menyediakan pengalaman berbelanja yang aman, mudah, dan terpercaya untuk pelanggan dan admin.
+A full-stack e-commerce application built with Next.js 14, Supabase, and Stripe. This project provides a complete online shopping experience with modern UI/UX, secure authentication, and payment processing.
 
-## ✨ Fitur Utama
+## 🚀 Quick Start
 
-### 🛍️ Untuk Pelanggan
-- **Beranda Modern**: Tampilan profesional dengan produk unggulan
-- **Katalog Produk**: Jelajahi berbagai kategori produk
-- **Detail Produk**: Informasi lengkap dengan gambar berkualitas
-- **Keranjang Belanja**: Kelola produk yang akan dibeli
-- **Checkout**: Proses pembelian yang aman
-- **Riwayat Pesanan**: Pantau status pesanan Anda
-- **Autentikasi**: Login/Register dengan email atau sosial media (Google, Facebook)
-
-### 👨‍💼 Untuk Admin
-- **Dashboard Lengkap**: Statistik penjualan dan kinerja
-- **Manajemen Produk**: Tambah, edit, hapus produk
-- **Manajemen Pesanan**: Kelola pesanan pelanggan
-- **Manajemen Pengguna**: Pantau data pelanggan
-- **Analytics**: Laporan penjualan dan performa
-
-## 🚀 Teknologi yang Digunakan
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Framer Motion
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **UI Components**: Radix UI, Lucide React
-- **State Management**: Zustand
-- **Forms**: React Hook Form
-- **Notifications**: Custom Toast System
-
-## 📋 Prasyarat
-
-- Node.js 18+ 
-- npm atau yarn
-- Akun Supabase
-- Git
-
-## 🛠️ Instalasi
-
-### 1. Clone Repository
 ```bash
-git clone https://github.com/jonalexanderhere/jonsStore.git
-cd jonsStore
-```
-
-### 2. Install Dependencies
-```bash
+# Install dependencies
 npm install
-# atau
-yarn install
-```
 
-### 3. Setup Environment Variables
-Buat file `.env.local` di root directory:
+# Set up environment variables
+cp env.example .env.local
+# Edit .env.local with your Supabase and Stripe credentials
 
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+# Set up the database
+npm run setup:complete
 
-# Optional: Stripe (untuk payment)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-STRIPE_SECRET_KEY=your_stripe_secret_key
-```
-
-### 4. Setup Database
-Jalankan script setup database:
-
-```bash
-# Setup database lengkap
-npm run setup:jonsstore
-
-# Atau setup manual di Supabase SQL Editor
-# Jalankan file: supabase-jonsstore-complete.sql
-```
-
-### 5. Jalankan Development Server
-```bash
+# Start development server
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
+## 📁 Project Structure
 
-## 🗄️ Database Schema
-
-### Tables
-- **categories**: Kategori produk
-- **products**: Data produk
-- **users**: Data pengguna (extends Supabase auth)
-- **orders**: Pesanan pelanggan
-- **order_items**: Item dalam pesanan
-
-### Views
-- **product_analytics**: Analitik produk
-- **order_analytics**: Analitik pesanan
-
-### Functions
-- **handle_new_user()**: Auto-create user profile
-- **calculate_order_total()**: Hitung total pesanan
-- **update_updated_at_column()**: Update timestamp
-
-## 🔐 Autentikasi
-
-### Login Methods
-1. **Email/Password**: Login tradisional
-2. **Google OAuth**: Login dengan Google
-3. **Facebook OAuth**: Login dengan Facebook
-
-### User Roles
-- **customer**: Pelanggan biasa
-- **admin**: Administrator dengan akses penuh
-
-### Admin Credentials (Default)
 ```
-Email: admin@jonsstore.com
-Password: admin123456
+├── app/                    # Next.js 14 App Router pages
+│   ├── about/             # About page
+│   ├── admin/             # Admin dashboard
+│   ├── auth/              # Authentication pages
+│   ├── cart/              # Shopping cart
+│   ├── categories/        # Product categories
+│   ├── checkout/          # Checkout process
+│   ├── orders/            # Order management
+│   ├── products/          # Product pages
+│   └── privacy/           # Privacy policy
+├── components/            # Reusable React components
+│   ├── auth/              # Authentication components
+│   ├── layout/            # Layout components
+│   ├── product/           # Product-related components
+│   └── ui/                # UI components
+├── database/              # Database setup files
+│   ├── supabase-complete-setup-final.sql  # Main database schema
+│   ├── supabase-production-ready.sql      # Production setup
+│   └── fix-rls-policies.sql              # RLS policy fixes
+├── docs/                  # Documentation
+│   ├── README.md          # Main documentation
+│   ├── QUICK-START.md     # Quick start guide
+│   ├── SETUP.md           # Setup instructions
+│   ├── FEATURES.md        # Feature list
+│   └── DEPLOYMENT.md      # Deployment guide
+├── lib/                   # Utility libraries
+│   ├── auth.ts            # Authentication utilities
+│   ├── supabase.ts        # Supabase client
+│   ├── stripe.ts          # Stripe configuration
+│   ├── store.ts           # Zustand store
+│   ├── types.ts           # TypeScript types
+│   └── utils.ts           # General utilities
+├── public/                # Static assets
+│   └── images/            # Image assets
+└── scripts/               # Automation scripts
+    ├── setup/             # Database setup scripts
+    ├── testing/           # Testing scripts
+    └── open-supabase-dashboard.js
 ```
 
-## 📱 Halaman dan Route
+## 🛠️ Features
 
-### Public Routes
-- `/` - Beranda
-- `/products` - Katalog produk
-- `/products/[id]` - Detail produk
-- `/categories` - Kategori produk
-- `/auth/login` - Login
-- `/auth/register` - Register
-- `/auth/callback` - OAuth callback
+- **Modern UI/UX**: Built with Tailwind CSS and Framer Motion
+- **Authentication**: Secure user authentication with Supabase Auth
+- **Product Management**: Full CRUD operations for products and categories
+- **Shopping Cart**: Persistent cart with real-time updates
+- **Order Management**: Complete order processing workflow
+- **Payment Processing**: Stripe integration for secure payments
+- **Admin Dashboard**: Comprehensive admin panel
+- **Responsive Design**: Mobile-first responsive design
+- **TypeScript**: Full type safety throughout the application
 
-### Protected Routes
-- `/cart` - Keranjang belanja
-- `/checkout` - Proses checkout
-- `/orders` - Riwayat pesanan
-- `/admin` - Dashboard admin (admin only)
+## 🗄️ Database
 
-## 🧪 Testing
+The application uses Supabase (PostgreSQL) with the following main tables:
 
-### Run Tests
+- **users**: User accounts and profiles
+- **categories**: Product categories
+- **products**: Product catalog
+- **cart_items**: Shopping cart items
+- **orders**: Order management
+- **order_items**: Order line items
+- **payments**: Payment records
+- **reviews**: Product reviews
+- **wishlist**: User wishlists
+- **coupons**: Discount coupons
+
+## 🚀 Available Scripts
+
+### Development
 ```bash
-# Test semua fitur
-npm run test:all
-
-# Test advanced (comprehensive)
-npm run test:advanced
-
-# Test admin login
-npm run test:admin
-```
-
-### Test Coverage
-- ✅ Database connection
-- ✅ Authentication flow
-- ✅ Product queries
-- ✅ Order system
-- ✅ RLS policies
-- ✅ Performance tests
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Push code ke GitHub
-2. Connect repository ke Vercel
-3. Add environment variables di Vercel dashboard
-4. Deploy
-
-### Environment Variables untuk Production
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_production_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_production_service_role_key
-```
-
-## 📊 Performance
-
-- **Build Size**: ~117KB (First Load JS)
-- **Lighthouse Score**: 90+ (Performance, Accessibility, SEO)
-- **Database Queries**: Optimized dengan indexes
-- **Image Optimization**: Next.js Image component
-
-## 🔧 Scripts Available
-
-```bash
-# Development
 npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
-
-# Database
-npm run setup:jonsstore    # Setup complete database
-npm run setup:complete     # Setup database (alternative)
-npm run create:admin       # Create admin user
-
-# Testing
-npm run test:all           # Test all features
-npm run test:advanced      # Advanced testing suite
-npm run test:admin         # Test admin functionality
 ```
 
-## 🎨 Design System
+### Database Setup
+```bash
+npm run setup:complete    # Complete database setup
+npm run setup:vercel     # Vercel-specific setup
+npm run setup:production # Production database setup
+```
 
-### Colors
-- **Primary**: Blue (#3b82f6)
-- **Secondary**: Gray (#6b7280)
-- **Background**: White/Gray-50
-- **Accent**: Blue variants
+### Testing
+```bash
+npm run test:admin   # Test admin functionality
+npm run test:all     # Run all tests
+npm run test:advanced # Advanced testing
+```
 
-### Components
-- **Cards**: Professional card dengan hover effects
-- **Buttons**: Primary (blue) dan Secondary (outline)
-- **Inputs**: Professional styling dengan focus states
-- **Typography**: Clean dan readable fonts
+### Admin Management
+```bash
+npm run create:admin # Create admin user
+```
 
-## 🐛 Troubleshooting
+## 🔧 Environment Variables
 
-### Common Issues
+Create a `.env.local` file with the following variables:
 
-1. **Database Connection Error**
-   - Pastikan environment variables sudah benar
-   - Check Supabase project status
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-2. **Login Redirect Issue**
-   - Clear browser cache
-   - Check auth state di browser dev tools
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-3. **Build Errors**
-   - Run `npm run lint` untuk check warnings
-   - Pastikan semua dependencies terinstall
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-4. **OAuth Login Issues**
-   - Pastikan OAuth providers sudah dikonfigurasi di Supabase
-   - Check redirect URLs
+## 📚 Documentation
 
-## 📈 Monitoring
+- [Quick Start Guide](docs/QUICK-START.md)
+- [Setup Instructions](docs/SETUP.md)
+- [Features Overview](docs/FEATURES.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Contributing Guidelines](docs/CONTRIBUTING.md)
 
-### Analytics
-- Product performance tracking
-- Order analytics
-- User behavior insights
+## 🚀 Deployment
 
-### Logs
-- Authentication logs
-- Error tracking
-- Performance monitoring
+### Vercel (Recommended)
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Set environment variables in Vercel dashboard
+4. Deploy!
+
+### Other Platforms
+See [Deployment Guide](docs/DEPLOYMENT.md) for detailed instructions.
 
 ## 🤝 Contributing
 
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+See [Contributing Guidelines](docs/CONTRIBUTING.md) for more details.
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Team
+## 🆘 Support
 
-- **Developer**: JonsStore Team
-- **Design**: Professional UI/UX
-- **Backend**: Supabase Integration
+If you encounter any issues or have questions:
 
-## 📞 Support
+1. Check the [documentation](docs/)
+2. Search existing [issues](https://github.com/your-repo/issues)
+3. Create a new issue with detailed information
 
-Untuk pertanyaan atau bantuan:
-- Create issue di GitHub
-- Email: support@jonsstore.com
-- Documentation: [Wiki](https://github.com/jonalexanderhere/jonsStore/wiki)
+## 🙏 Acknowledgments
 
-## 🔄 Changelog
-
-### v1.0.0 (Latest)
-- ✅ Complete e-commerce functionality
-- ✅ Professional design system
-- ✅ Google & Facebook login
-- ✅ Admin dashboard
-- ✅ Advanced testing suite
-- ✅ Production ready
-
----
-
-**JonsStore** - Platform e-commerce terpercaya untuk semua kebutuhan Anda! 🛍️✨
+- [Next.js](https://nextjs.org/) - React framework
+- [Supabase](https://supabase.com/) - Backend as a Service
+- [Stripe](https://stripe.com/) - Payment processing
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Framer Motion](https://www.framer.com/motion/) - Animation library

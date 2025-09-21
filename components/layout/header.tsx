@@ -11,6 +11,7 @@ import { useCartStore } from '@/lib/store'
 import { useAuth } from '@/components/auth/auth-provider'
 import { signOut } from '@/lib/auth'
 import { toast } from 'react-hot-toast'
+import RealtimeNotifications from '@/components/ui/realtime-notifications'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -68,6 +69,9 @@ export default function Header() {
               <Button variant="ghost">Tentang</Button>
             </Link>
             
+            {/* Notifications */}
+            <RealtimeNotifications />
+
             {/* Cart */}
             <Link href="/cart" className="relative">
               <Button variant="ghost" size="icon">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,13 +9,38 @@ import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/lib/store'
 import { formatPrice } from '@/lib/utils'
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Shield, Truck } from 'lucide-react'
+import { createClient, subscribeToCart } from '@/lib/supabase'
+import { useAuth } from '@/components/auth/auth-provider'
 // import Image from 'next/image'
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems, clearCart } = useCartStore()
+  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems, clearCart, syncCartFromDB } = useCartStore()
   const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
   const [discount, setDiscount] = useState(0)
+  const { user } = useAuth()
+
+  // Real-time cart synchronization
+  useEffect(() => {
+    if (!user) return
+
+    const subscription = subscribeToCart(user.id, (payload) => {
+      console.log('Real-time cart update:', payload)
+      
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        // Sync cart from database
+        syncCartFromDB()
+      } else if (payload.eventType === 'DELETE') {
+        // Remove item from local cart
+        const deletedItem = payload.old
+        removeItem(deletedItem.product_id)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [user, syncCartFromDB, removeItem])
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity <= 0) {

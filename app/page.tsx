@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Truck, Shield, Headphones, Zap } from 'lucide-react'
 import { Product } from '@/lib/types'
 import ProductCard from '@/components/product/product-card'
+import { createClient, subscribeToProducts } from '@/lib/supabase'
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
@@ -15,7 +16,6 @@ export default function HomePage() {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const { createClient } = await import('@/lib/supabase')
         const supabase = createClient()
         
         const { data: productsData, error } = await supabase
@@ -42,6 +42,42 @@ export default function HomePage() {
     }
 
     fetchFeaturedProducts()
+  }, [])
+
+  // Real-time subscription for product updates
+  useEffect(() => {
+    const subscription = subscribeToProducts((payload) => {
+      console.log('Real-time product update:', payload)
+      
+      if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+        const updatedProduct = payload.new as Product
+        
+        // Update featured products if the updated product is featured
+        if (updatedProduct.is_featured && updatedProduct.is_active) {
+          setFeaturedProducts(prev => {
+            const existingIndex = prev.findIndex(p => p.id === updatedProduct.id)
+            if (existingIndex >= 0) {
+              // Update existing product
+              const updated = [...prev]
+              updated[existingIndex] = updatedProduct
+              return updated
+            } else {
+              // Add new featured product
+              return [updatedProduct, ...prev].slice(0, 4)
+            }
+          })
+        } else if (payload.eventType === 'DELETE') {
+          // Remove deleted product
+          setFeaturedProducts(prev => 
+            prev.filter(p => p.id !== payload.old.id)
+          )
+        }
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   const getIcon = (iconName: string) => {
