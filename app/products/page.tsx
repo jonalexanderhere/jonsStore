@@ -58,7 +58,7 @@ export default function ProductsPage() {
       console.log('Real-time product update:', payload)
       
       if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-        const updatedProduct = payload.new as Product
+        const updatedProduct = payload.new as unknown as Product
         
         setProducts(prev => {
           const existingIndex = prev.findIndex(p => p.id === updatedProduct.id)
@@ -75,7 +75,7 @@ export default function ProductsPage() {
       } else if (payload.eventType === 'DELETE') {
         // Remove deleted product
         setProducts(prev => 
-          prev.filter(p => p.id !== payload.old.id)
+          prev.filter(p => p.id !== (payload.old as { id: string }).id)
         )
       }
     })

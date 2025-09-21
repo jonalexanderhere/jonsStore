@@ -50,7 +50,7 @@ export default function HomePage() {
       console.log('Real-time product update:', payload)
       
       if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-        const updatedProduct = payload.new as Product
+        const updatedProduct = payload.new as unknown as Product
         
         // Update featured products if the updated product is featured
         if (updatedProduct.is_featured && updatedProduct.is_active) {
@@ -66,12 +66,12 @@ export default function HomePage() {
               return [updatedProduct, ...prev].slice(0, 4)
             }
           })
-        } else if (payload.eventType === 'DELETE') {
-          // Remove deleted product
-          setFeaturedProducts(prev => 
-            prev.filter(p => p.id !== payload.old.id)
-          )
         }
+      } else if (payload.eventType === 'DELETE') {
+        // Remove deleted product
+        setFeaturedProducts(prev => 
+          prev.filter(p => p.id !== (payload.old as { id: string }).id)
+        )
       }
     })
 

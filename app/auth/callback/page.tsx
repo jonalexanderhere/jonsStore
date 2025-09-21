@@ -14,25 +14,29 @@ export default function AuthCallbackPage() {
     const handleAuthCallback = async () => {
       try {
         const supabase = createClient()
+        
+        // Get the session from URL hash
         const { data, error } = await supabase.auth.getSession()
 
         if (error) {
           console.error('Auth callback error:', error)
-          showError('Login Gagal', error.message, 5000)
-          router.push('/auth/login')
+          showError('Login Gagal', `Error: ${error.message}`, 5000)
+          setTimeout(() => router.push('/auth/login'), 2000)
           return
         }
 
         if (data.session?.user) {
+          console.log('User authenticated:', data.session.user.email)
+          
           // Ensure user profile exists in database
-          const { data: existingUser } = await supabase
+          const { error: userError } = await supabase
             .from('users')
             .select('*')
             .eq('id', data.session.user.id)
             .single()
 
-          if (!existingUser) {
-            // Create user profile if it doesn't exist
+          if (userError && userError.code === 'PGRST116') {
+            // User doesn't exist, create profile
             const userMetadata = data.session.user.user_metadata || {}
             const { error: profileError } = await supabase
               .from('users')
@@ -42,18 +46,21 @@ export default function AuthCallbackPage() {
                 full_name: userMetadata.full_name || userMetadata.name || data.session.user.email!.split('@')[0],
                 phone: userMetadata.phone || null,
                 avatar_url: userMetadata.avatar_url || userMetadata.picture || null,
-                role: userMetadata.role || 'customer',
-                email_verified: data.session.user.email_confirmed_at ? true : false
+                role: userMetadata.role || 'customer'
               })
 
             if (profileError) {
-              console.log('Profile creation error:', profileError.message)
+              console.error('Profile creation error:', profileError)
+              showError('Error Profil', 'Gagal membuat profil pengguna', 3000)
             } else {
               console.log('User profile created successfully')
             }
+          } else if (userError) {
+            console.error('Error checking user:', userError)
+            showError('Error Database', 'Gagal memeriksa data pengguna', 3000)
           }
 
-          // Get user role
+          // Get user role for redirection
           const { data: userData } = await supabase
             .from('users')
             .select('role')
@@ -71,12 +78,14 @@ export default function AuthCallbackPage() {
             }
           }, 1500)
         } else {
-          router.push('/auth/login')
+          console.log('No session found, redirecting to login')
+          showError('Sesi Tidak Ditemukan', 'Silakan login kembali', 3000)
+          setTimeout(() => router.push('/auth/login'), 2000)
         }
       } catch (error) {
         console.error('Auth callback error:', error)
-        showError('Login Gagal', 'Terjadi kesalahan saat login', 5000)
-        router.push('/auth/login')
+        showError('Login Gagal', 'Terjadi kesalahan saat memproses login', 5000)
+        setTimeout(() => router.push('/auth/login'), 2000)
       }
     }
 

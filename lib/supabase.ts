@@ -1,32 +1,26 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 
 export const createClient = () => {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables')
+  }
+
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
-export const createServerSupabaseClient = () => {
-  const cookieStore = cookies()
-  
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-      },
-    }
-  )
+// Real-time subscription types
+interface RealtimePayload {
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE'
+  new: Record<string, unknown>
+  old: Record<string, unknown>
 }
+
 
 // Real-time subscription helper
-export const subscribeToRealtime = (table: string, callback: (payload: any) => void) => {
+export const subscribeToRealtime = (table: string, callback: (payload: RealtimePayload) => void) => {
   const supabase = createClient()
   
   return supabase
@@ -43,12 +37,12 @@ export const subscribeToRealtime = (table: string, callback: (payload: any) => v
 }
 
 // Real-time product updates
-export const subscribeToProducts = (callback: (payload: any) => void) => {
+export const subscribeToProducts = (callback: (payload: RealtimePayload) => void) => {
   return subscribeToRealtime('products', callback)
 }
 
 // Real-time cart updates
-export const subscribeToCart = (userId: string, callback: (payload: any) => void) => {
+export const subscribeToCart = (userId: string, callback: (payload: RealtimePayload) => void) => {
   const supabase = createClient()
   
   return supabase
@@ -66,7 +60,7 @@ export const subscribeToCart = (userId: string, callback: (payload: any) => void
 }
 
 // Real-time order updates
-export const subscribeToOrders = (userId: string, callback: (payload: any) => void) => {
+export const subscribeToOrders = (userId: string, callback: (payload: RealtimePayload) => void) => {
   const supabase = createClient()
   
   return supabase
@@ -84,7 +78,7 @@ export const subscribeToOrders = (userId: string, callback: (payload: any) => vo
 }
 
 // Real-time notifications
-export const subscribeToNotifications = (userId: string, callback: (payload: any) => void) => {
+export const subscribeToNotifications = (userId: string, callback: (payload: RealtimePayload) => void) => {
   const supabase = createClient()
   
   return supabase

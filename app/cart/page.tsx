@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/lib/store'
 import { formatPrice } from '@/lib/utils'
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Shield, Truck } from 'lucide-react'
-import { createClient, subscribeToCart } from '@/lib/supabase'
+import { subscribeToCart } from '@/lib/supabase'
 import { useAuth } from '@/components/auth/auth-provider'
 // import Image from 'next/image'
 
@@ -32,7 +32,7 @@ export default function CartPage() {
         syncCartFromDB()
       } else if (payload.eventType === 'DELETE') {
         // Remove item from local cart
-        const deletedItem = payload.old
+        const deletedItem = payload.old as { product_id: string }
         removeItem(deletedItem.product_id)
       }
     })

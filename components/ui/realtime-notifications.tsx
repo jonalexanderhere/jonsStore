@@ -14,7 +14,7 @@ interface Notification {
   message: string
   type: 'info' | 'success' | 'warning' | 'error'
   is_read: boolean
-  data?: any
+  data?: Record<string, unknown>
   created_at: string
 }
 
@@ -62,13 +62,13 @@ export default function RealtimeNotifications() {
       console.log('Real-time notification:', payload)
       
       if (payload.eventType === 'INSERT') {
-        const newNotification = payload.new as Notification
+        const newNotification = payload.new as unknown as Notification
         setNotifications(prev => [newNotification, ...prev])
         if (!newNotification.is_read) {
           setUnreadCount(prev => prev + 1)
         }
       } else if (payload.eventType === 'UPDATE') {
-        const updatedNotification = payload.new as Notification
+        const updatedNotification = payload.new as unknown as Notification
         setNotifications(prev => 
           prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
         )
@@ -131,18 +131,6 @@ export default function RealtimeNotifications() {
     }
   }
 
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'text-green-600 bg-green-50'
-      case 'warning':
-        return 'text-yellow-600 bg-yellow-50'
-      case 'error':
-        return 'text-red-600 bg-red-50'
-      default:
-        return 'text-blue-600 bg-blue-50'
-    }
-  }
 
   if (!user) return null
 

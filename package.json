@@ -17,6 +17,9 @@
     "setup:jonsstore": "node scripts/setup/setup-jonsstore-database.js",
     "setup:production": "node scripts/setup/setup-production-database.js",
     "setup:realtime": "node scripts/setup/setup-production-realtime.js",
+    "setup:oauth": "node scripts/setup/setup-oauth.js",
+    "create:admin": "node scripts/setup/create-admin-user.js",
+    "cleanup:push": "node scripts/setup/cleanup-and-push.js",
     "add:products": "node scripts/setup/add-more-products.js",
     "open:supabase": "node scripts/open-supabase-dashboard.js"
   },

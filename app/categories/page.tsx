@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { ArrowRight } from 'lucide-react'
 import { Category, Product } from '@/lib/types'
 import ProductCard from '@/components/product/product-card'
+import { createClient } from '@/lib/supabase'
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -16,7 +17,6 @@ export default function CategoriesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { createClient } = await import('@/lib/supabase')
         const supabase = createClient()
         
         // Fetch categories

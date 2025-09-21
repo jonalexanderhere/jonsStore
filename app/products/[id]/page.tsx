@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { useCartStore } from '@/lib/store'
 import { formatPrice } from '@/lib/utils'
 import { Product } from '@/lib/types'
+import { createClient } from '@/lib/supabase'
 import { 
   Star, 
   ShoppingCart, 
@@ -40,7 +41,6 @@ export default function ProductDetailPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { createClient } = await import('@/lib/supabase')
         const supabase = createClient()
         
         const { data: productData, error } = await supabase

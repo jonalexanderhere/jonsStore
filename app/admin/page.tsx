@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { 
   ShoppingCart, 
   Users, 
@@ -44,8 +45,6 @@ export default function AdminDashboard() {
     productsGrowth: 0,
     usersGrowth: 0
   })
-  const [notifications, setNotifications] = useState<any[]>([])
-  const [unreadNotifications, setUnreadNotifications] = useState(0)
   
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -178,7 +177,7 @@ export default function AdminDashboard() {
       console.log('Real-time product update:', payload)
       
       if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-        const updatedProduct = payload.new as Product
+        const updatedProduct = payload.new as unknown as Product
         
         setProducts(prev => {
           const existingIndex = prev.findIndex(p => p.id === updatedProduct.id)
@@ -202,27 +201,33 @@ export default function AdminDashboard() {
       console.log('Real-time order update:', payload)
       
       if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-        const updatedOrder = payload.new
+        const updatedOrder = payload.new as unknown as {
+          id: string
+          user?: { full_name?: string }
+          total_amount: number
+          status: string
+          created_at: string
+        }
         
         setOrders(prev => {
           const existingIndex = prev.findIndex(o => o.id === updatedOrder.id)
           if (existingIndex >= 0) {
             const updated = [...prev]
             updated[existingIndex] = {
-              id: updatedOrder.id,
-              customer: updatedOrder.user?.full_name || 'Unknown Customer',
-              amount: updatedOrder.total_amount,
-              status: updatedOrder.status,
-              date: updatedOrder.created_at
+              id: String(updatedOrder.id),
+              customer: String(updatedOrder.user?.full_name || 'Unknown Customer'),
+              amount: Number(updatedOrder.total_amount),
+              status: String(updatedOrder.status),
+              date: String(updatedOrder.created_at)
             }
             return updated
           } else {
             return [{
-              id: updatedOrder.id,
-              customer: updatedOrder.user?.full_name || 'Unknown Customer',
-              amount: updatedOrder.total_amount,
-              status: updatedOrder.status,
-              date: updatedOrder.created_at
+              id: String(updatedOrder.id),
+              customer: String(updatedOrder.user?.full_name || 'Unknown Customer'),
+              amount: Number(updatedOrder.total_amount),
+              status: String(updatedOrder.status),
+              date: String(updatedOrder.created_at)
             }, ...prev]
           }
         })
@@ -232,20 +237,7 @@ export default function AdminDashboard() {
     // Subscribe to notifications
     const notificationSubscription = subscribeToNotifications(user.id, (payload) => {
       console.log('Real-time notification:', payload)
-      
-      if (payload.eventType === 'INSERT') {
-        const newNotification = payload.new
-        setNotifications(prev => [newNotification, ...prev])
-        setUnreadNotifications(prev => prev + 1)
-      } else if (payload.eventType === 'UPDATE') {
-        const updatedNotification = payload.new
-        setNotifications(prev => 
-          prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
-        )
-        if (updatedNotification.is_read) {
-          setUnreadNotifications(prev => Math.max(0, prev - 1))
-        }
-      }
+      // Notification handling can be implemented here if needed
     })
 
     return () => {
@@ -493,15 +485,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                                {product.images && product.images.length > 0 ? (
-                                  <img 
-                                    src={product.images[0]} 
-                                    alt={product.name}
-                                    className="w-10 h-10 rounded object-cover"
-                                  />
-                                ) : (
-                                  <Package className="h-5 w-5 text-gray-400" />
-                                )}
+                                <Package className="h-5 w-5 text-gray-400" />
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{product.name}</div>
@@ -620,18 +604,184 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Other tabs would be implemented similarly */}
+        {/* Customers Tab */}
         {activeTab === 'customers' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Kelola Pelanggan</h2>
-            <p className="text-gray-600">Fitur ini akan segera hadir</p>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Kelola Pelanggan</h2>
+              <div className="flex items-center space-x-2">
+                <Input placeholder="Cari pelanggan..." className="w-64" />
+                <Button variant="outline">Filter</Button>
+              </div>
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Pelanggan
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Total Pesanan
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Aksi
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                              <Users className="h-5 w-5 text-gray-400" />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">John Doe</div>
+                              <div className="text-sm text-gray-500">ID: 12345</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          john@example.com
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          5 pesanan
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant="default">Aktif</Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
+        {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Analytics</h2>
-            <p className="text-gray-600">Fitur ini akan segera hadir</p>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline">Export Data</Button>
+                <Button variant="outline">Refresh</Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <TrendingUp className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Pendapatan Hari Ini</p>
+                      <p className="text-2xl font-bold text-gray-900">Rp 2.5M</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <ShoppingCart className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Pesanan Hari Ini</p>
+                      <p className="text-2xl font-bold text-gray-900">45</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Users className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Pengunjung Hari Ini</p>
+                      <p className="text-2xl font-bold text-gray-900">1,234</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <Package className="h-6 w-6 text-orange-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Produk Terjual</p>
+                      <p className="text-2xl font-bold text-gray-900">89</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Grafik Penjualan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    Grafik penjualan akan ditampilkan di sini
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Produk Terpopuler</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">iPhone 15 Pro Max</span>
+                      <span className="text-sm text-gray-500">25 terjual</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Samsung Galaxy S24</span>
+                      <span className="text-sm text-gray-500">18 terjual</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">MacBook Air M3</span>
+                      <span className="text-sm text-gray-500">12 terjual</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </div>

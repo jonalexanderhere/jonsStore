@@ -11,6 +11,7 @@ import { formatPrice } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { ArrowLeft, CreditCard, MapPin, User, Phone, Mail } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase'
 
 interface CheckoutForm {
   fullName: string
@@ -29,7 +30,7 @@ interface CheckoutForm {
 export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const router = useRouter()
-  const { items, getTotalPrice, getTotalItems, clearCart } = useCartStore()
+  const { items, getTotalPrice, clearCart } = useCartStore()
   const { register, handleSubmit, watch, formState: { errors } } = useForm<CheckoutForm>()
   
   const paymentMethod = watch('paymentMethod')
@@ -41,7 +42,6 @@ export default function CheckoutPage() {
     setIsProcessing(true)
     
     try {
-      const { createClient } = await import('@/lib/supabase')
       const supabase = createClient()
       
       // Get current user
@@ -52,53 +52,39 @@ export default function CheckoutPage() {
         return
       }
 
-      // Generate order number
-      const orderNumber = `ORD-${Date.now()}`
-      
       // Create order
-      const { data: orderData, error: orderError } = await supabase
+      const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          order_number: orderNumber,
           user_id: user.id,
-          status: 'pending',
-          payment_status: 'pending',
-          payment_method: formData.paymentMethod,
-          subtotal: subtotal,
-          shipping_amount: shipping,
           total_amount: total,
+          status: 'pending',
           shipping_address: {
             full_name: formData.fullName,
+            email: formData.email,
             phone: formData.phone,
             address: formData.address,
             city: formData.city,
             postal_code: formData.postalCode
           },
-          billing_address: {
-            full_name: formData.fullName,
-            phone: formData.phone,
-            address: formData.address,
-            city: formData.city,
-            postal_code: formData.postalCode
-          }
+          payment_method: formData.paymentMethod,
+          payment_status: 'pending'
         })
         .select()
         .single()
 
       if (orderError) {
-        throw new Error(orderError.message)
+        console.error('Error creating order:', orderError)
+        toast.error('Gagal membuat pesanan')
+        return
       }
 
       // Create order items
       const orderItems = items.map(item => ({
-        order_id: orderData.id,
+        order_id: order.id,
         product_id: item.product_id,
-        product_name: item.product.name,
-        product_sku: '',
-        product_image: item.product.images[0] || '',
         quantity: item.quantity,
-        unit_price: item.product.price,
-        total_price: item.product.price * item.quantity
+        price: item.product.price
       }))
 
       const { error: itemsError } = await supabase
@@ -106,17 +92,20 @@ export default function CheckoutPage() {
         .insert(orderItems)
 
       if (itemsError) {
-        throw new Error(itemsError.message)
+        console.error('Error creating order items:', itemsError)
+        toast.error('Gagal membuat detail pesanan')
+        return
       }
 
-      // Clear cart after successful order
+      // Clear cart
       clearCart()
-      
+
       toast.success('Pesanan berhasil dibuat!')
-      router.push('/orders/success')
+      router.push(`/orders/success?orderId=${order.id}`)
+      
     } catch (error) {
       console.error('Checkout error:', error)
-      toast.error('Terjadi kesalahan saat memproses pesanan')
+      toast.error('Terjadi kesalahan saat checkout')
     } finally {
       setIsProcessing(false)
     }
@@ -126,10 +115,10 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Keranjang Kosong</h2>
-          <p className="text-gray-600 mb-8">Tidak ada item untuk checkout</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Keranjang Kosong</h1>
+          <p className="text-gray-600 mb-6">Silakan tambahkan produk ke keranjang terlebih dahulu</p>
           <Link href="/products">
-            <Button>Kembali ke Produk</Button>
+            <Button>Lanjutkan Belanja</Button>
           </Link>
         </div>
       </div>
@@ -139,13 +128,14 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <Link href="/cart" className="inline-flex items-center text-primary-600 hover:text-primary-500 mb-4">
+          <Link href="/cart" className="inline-flex items-center text-blue-600 hover:text-blue-500 mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Kembali ke Keranjang
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
-          <p className="text-gray-600">Lengkapi informasi untuk menyelesaikan pembelian</p>
+          <p className="text-gray-600">Lengkapi informasi untuk menyelesaikan pesanan</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -188,7 +178,7 @@ export default function CheckoutPage() {
                         type="email"
                         placeholder="Masukkan email"
                         className="pl-10"
-                        {...register('email', {
+                        {...register('email', { 
                           required: 'Email wajib diisi',
                           pattern: {
                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -269,41 +259,41 @@ export default function CheckoutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CreditCard className="h-5 w-5 mr-2" />
-                  Metode Pembayaran
+                  Informasi Pembayaran
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pilih Metode Pembayaran *
+                    Metode Pembayaran *
                   </label>
                   <div className="space-y-2">
-                    <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label className="flex items-center">
                       <input
                         type="radio"
                         value="credit"
                         {...register('paymentMethod', { required: 'Pilih metode pembayaran' })}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                        className="mr-2"
                       />
-                      <span className="ml-3">Kartu Kredit/Debit</span>
+                      Kartu Kredit/Debit
                     </label>
-                    <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label className="flex items-center">
                       <input
                         type="radio"
                         value="bank_transfer"
-                        {...register('paymentMethod', { required: 'Pilih metode pembayaran' })}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                        {...register('paymentMethod')}
+                        className="mr-2"
                       />
-                      <span className="ml-3">Transfer Bank</span>
+                      Transfer Bank
                     </label>
-                    <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label className="flex items-center">
                       <input
                         type="radio"
                         value="e_wallet"
-                        {...register('paymentMethod', { required: 'Pilih metode pembayaran' })}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                        {...register('paymentMethod')}
+                        className="mr-2"
                       />
-                      <span className="ml-3">E-Wallet (GoPay, OVO, DANA)</span>
+                      E-Wallet
                     </label>
                   </div>
                   {errors.paymentMethod && (
@@ -312,19 +302,30 @@ export default function CheckoutPage() {
                 </div>
 
                 {paymentMethod === 'credit' && (
-                  <div className="space-y-4 pt-4 border-t">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nama di Kartu *
+                      </label>
+                      <Input
+                        placeholder="Masukkan nama di kartu"
+                        {...register('cardName', { 
+                          required: paymentMethod === 'credit' ? 'Nama di kartu wajib diisi' : false 
+                        })}
+                      />
+                      {errors.cardName && (
+                        <p className="mt-1 text-sm text-red-600">{errors.cardName.message}</p>
+                      )}
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Nomor Kartu *
                       </label>
                       <Input
                         placeholder="1234 5678 9012 3456"
-                        {...register('cardNumber', {
-                          required: 'Nomor kartu wajib diisi',
-                          pattern: {
-                            value: /^[0-9\s]{16,19}$/,
-                            message: 'Format nomor kartu tidak valid'
-                          }
+                        {...register('cardNumber', { 
+                          required: paymentMethod === 'credit' ? 'Nomor kartu wajib diisi' : false 
                         })}
                       />
                       {errors.cardNumber && (
@@ -339,12 +340,8 @@ export default function CheckoutPage() {
                         </label>
                         <Input
                           placeholder="MM/YY"
-                          {...register('expiryDate', {
-                            required: 'Tanggal kadaluarsa wajib diisi',
-                            pattern: {
-                              value: /^(0[1-9]|1[0-2])\/\d{2}$/,
-                              message: 'Format MM/YY'
-                            }
+                          {...register('expiryDate', { 
+                            required: paymentMethod === 'credit' ? 'Tanggal kadaluarsa wajib diisi' : false 
                           })}
                         />
                         {errors.expiryDate && (
@@ -358,31 +355,14 @@ export default function CheckoutPage() {
                         </label>
                         <Input
                           placeholder="123"
-                          {...register('cvv', {
-                            required: 'CVV wajib diisi',
-                            pattern: {
-                              value: /^[0-9]{3,4}$/,
-                              message: 'Format CVV tidak valid'
-                            }
+                          {...register('cvv', { 
+                            required: paymentMethod === 'credit' ? 'CVV wajib diisi' : false 
                           })}
                         />
                         {errors.cvv && (
                           <p className="mt-1 text-sm text-red-600">{errors.cvv.message}</p>
                         )}
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Nama di Kartu *
-                      </label>
-                      <Input
-                        placeholder="Nama sesuai di kartu"
-                        {...register('cardName', { required: 'Nama di kartu wajib diisi' })}
-                      />
-                      {errors.cardName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.cardName.message}</p>
-                      )}
                     </div>
                   </div>
                 )}
@@ -397,66 +377,42 @@ export default function CheckoutPage() {
                 <CardTitle>Ringkasan Pesanan</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Order Items */}
                 <div className="space-y-3">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-200 rounded"></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {item.product.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {item.quantity} x {formatPrice(item.product.price)}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{item.product.name}</p>
+                        <p className="text-sm text-gray-600">
+                          {item.quantity}x {formatPrice(item.product.price)}
                         </p>
                       </div>
-                      <p className="text-sm font-medium">
-                        {formatPrice(item.product.price * item.quantity)}
-                      </p>
                     </div>
                   ))}
                 </div>
 
-                {/* Price Breakdown */}
-                <div className="space-y-2 pt-4 border-t">
+                <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Subtotal ({getTotalItems()} item)</span>
+                    <span>Subtotal</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
-                  
                   <div className="flex justify-between text-sm">
                     <span>Ongkos Kirim</span>
-                    <span>
-                      {shipping === 0 ? (
-                        <span className="text-green-600">Gratis</span>
-                      ) : (
-                        formatPrice(shipping)
-                      )}
-                    </span>
+                    <span>{shipping === 0 ? 'Gratis' : formatPrice(shipping)}</span>
                   </div>
-                  
-                  <div className="border-t pt-2">
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total</span>
-                      <span>{formatPrice(total)}</span>
-                    </div>
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total</span>
+                    <span>{formatPrice(total)}</span>
                   </div>
                 </div>
 
-                {/* Place Order Button */}
                 <Button
                   type="submit"
                   className="w-full"
-                  size="lg"
                   disabled={isProcessing}
                 >
-                  {isProcessing ? 'Memproses...' : 'Buat Pesanan'}
+                  {isProcessing ? 'Memproses...' : `Bayar ${formatPrice(total)}`}
                 </Button>
-
-                {/* Security Notice */}
-                <div className="text-xs text-gray-500 text-center">
-                  <p>Transaksi Anda aman dan terenkripsi</p>
-                </div>
               </CardContent>
             </Card>
           </div>
@@ -465,4 +421,3 @@ export default function CheckoutPage() {
     </div>
   )
 }
-
