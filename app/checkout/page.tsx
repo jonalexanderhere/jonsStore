@@ -37,19 +37,85 @@ export default function CheckoutPage() {
   const shipping = subtotal > 500000 ? 0 : 15000
   const total = subtotal + shipping
 
-  const onSubmit = async (data: CheckoutForm) => {
+  const onSubmit = async (formData: CheckoutForm) => {
     setIsProcessing(true)
     
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const { createClient } = await import('@/lib/supabase')
+      const supabase = createClient()
       
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Anda harus login terlebih dahulu')
+        router.push('/auth/login')
+        return
+      }
+
+      // Generate order number
+      const orderNumber = `ORD-${Date.now()}`
+      
+      // Create order
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          order_number: orderNumber,
+          user_id: user.id,
+          status: 'pending',
+          payment_status: 'pending',
+          payment_method: formData.paymentMethod,
+          subtotal: subtotal,
+          shipping_amount: shipping,
+          total_amount: total,
+          shipping_address: {
+            full_name: formData.fullName,
+            phone: formData.phone,
+            address: formData.address,
+            city: formData.city,
+            postal_code: formData.postalCode
+          },
+          billing_address: {
+            full_name: formData.fullName,
+            phone: formData.phone,
+            address: formData.address,
+            city: formData.city,
+            postal_code: formData.postalCode
+          }
+        })
+        .select()
+        .single()
+
+      if (orderError) {
+        throw new Error(orderError.message)
+      }
+
+      // Create order items
+      const orderItems = items.map(item => ({
+        order_id: orderData.id,
+        product_id: item.product_id,
+        product_name: item.product.name,
+        product_sku: '',
+        product_image: item.product.images[0] || '',
+        quantity: item.quantity,
+        unit_price: item.product.price,
+        total_price: item.product.price * item.quantity
+      }))
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems)
+
+      if (itemsError) {
+        throw new Error(itemsError.message)
+      }
+
       // Clear cart after successful order
       clearCart()
       
       toast.success('Pesanan berhasil dibuat!')
       router.push('/orders/success')
-    } catch {
+    } catch (error) {
+      console.error('Checkout error:', error)
       toast.error('Terjadi kesalahan saat memproses pesanan')
     } finally {
       setIsProcessing(false)

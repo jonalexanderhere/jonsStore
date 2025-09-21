@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
-// import { ToastContainer } from '@/components/ui/modern-toast'
 import { AuthProvider } from '@/components/auth/auth-provider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -11,6 +10,10 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'JonsStore - E-commerce Terpercaya',
   description: 'JonsStore - Platform e-commerce terpercaya dengan produk berkualitas tinggi dan layanan terbaik untuk semua kebutuhan Anda.',
+  keywords: 'e-commerce, online shopping, produk berkualitas, jonsstore, belanja online',
+  authors: [{ name: 'JonsStore Team' }],
+  viewport: 'width=device-width, initial-scale=1',
+  robots: 'index, follow',
 }
 
 export default function RootLayout({
@@ -19,16 +22,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id">
-      <body className={inter.className}>
+    <html lang="id" className="scroll-smooth">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="theme-color" content="#3b82f6" />
+      </head>
+      <body className={`${inter.className} antialiased`}>
         <AuthProvider>
-          <Header />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </AuthProvider>
-        {/* ToastContainer will be handled by individual pages */}
       </body>
     </html>
   )

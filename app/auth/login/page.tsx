@@ -94,14 +94,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* Professional background pattern */}
-      <div className="absolute inset-0 bg-gray-50">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 opacity-50"></div>
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Background pattern */}
+      <div className="absolute inset-0 bg-white/50 backdrop-blur-sm"></div>
+      <div className="absolute inset-0" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.3'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+      }}></div>
 
       <div className="relative z-10 flex items-center justify-center">
         <motion.div
@@ -295,18 +293,27 @@ export default function LoginPage() {
                       className="w-full btn-secondary"
                       onClick={async () => {
                         try {
+                          setIsLoading(true)
                           const supabase = createClient()
                           const { error } = await supabase.auth.signInWithOAuth({
                             provider: 'google',
                             options: {
-                              redirectTo: `${window.location.origin}/auth/callback`
+                              redirectTo: `${window.location.origin}/auth/callback`,
+                              queryParams: {
+                                access_type: 'offline',
+                                prompt: 'consent',
+                              }
                             }
                           })
                           if (error) {
+                            console.error('Google OAuth error:', error)
                             showError('Google Login Gagal', error.message, 5000)
                           }
-                        } catch {
+                        } catch (error) {
+                          console.error('Google OAuth error:', error)
                           showError('Google Login Gagal', 'Terjadi kesalahan saat login dengan Google', 5000)
+                        } finally {
+                          setIsLoading(false)
                         }
                       }}
                     >
@@ -324,18 +331,27 @@ export default function LoginPage() {
                       className="w-full btn-secondary"
                       onClick={async () => {
                         try {
+                          setIsLoading(true)
                           const supabase = createClient()
                           const { error } = await supabase.auth.signInWithOAuth({
                             provider: 'facebook',
                             options: {
-                              redirectTo: `${window.location.origin}/auth/callback`
+                              redirectTo: `${window.location.origin}/auth/callback`,
+                              queryParams: {
+                                access_type: 'offline',
+                                prompt: 'consent',
+                              }
                             }
                           })
                           if (error) {
+                            console.error('Facebook OAuth error:', error)
                             showError('Facebook Login Gagal', error.message, 5000)
                           }
-                        } catch {
+                        } catch (error) {
+                          console.error('Facebook OAuth error:', error)
                           showError('Facebook Login Gagal', 'Terjadi kesalahan saat login dengan Facebook', 5000)
+                        } finally {
+                          setIsLoading(false)
                         }
                       }}
                     >

@@ -36,27 +36,8 @@ export default function ProductsPage() {
 
         if (error) {
           console.error('Error fetching products:', error)
-          // Fallback to mock data if database fails
-          const mockProducts: Product[] = [
-            {
-              id: '1',
-              name: 'iPhone 15 Pro Max',
-              description: 'Smartphone terbaru dengan teknologi canggih',
-              price: 19999000,
-              original_price: 22999000,
-              images: ['https://images.unsplash.com/photo-1592899677977-9c10b588e3a9?w=500&h=500&fit=crop'],
-              category_id: '1',
-              category: { id: '1', name: 'Elektronik', description: '', is_active: true, created_at: '', updated_at: '' },
-              stock: 50,
-              is_active: true,
-              is_featured: true,
-              tags: ['smartphone', 'apple', 'premium'],
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }
-          ]
-          setProducts(mockProducts)
-          setFilteredProducts(mockProducts)
+          setProducts([])
+          setFilteredProducts([])
         } else {
           setProducts(productsData || [])
           setFilteredProducts(productsData || [])
@@ -128,7 +109,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container-professional py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Semua Produk</h1>
           <p className="text-gray-600">Temukan produk terbaik sesuai kebutuhan Anda</p>

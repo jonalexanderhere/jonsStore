@@ -51,19 +51,7 @@ export default function CategoriesPage() {
         }
       } catch (error) {
         console.error('Error fetching data:', error)
-        // Fallback to mock data
-        const mockCategories: Category[] = [
-          {
-            id: '1',
-            name: 'Elektronik',
-            description: 'Produk elektronik dan gadget terbaru dengan teknologi canggih',
-            image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop',
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ]
-        setCategories(mockCategories)
+        setCategories([])
         setFeaturedProducts([])
       } finally {
         setIsLoading(false)
@@ -86,7 +74,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container-professional py-8">
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Kategori Produk</h1>

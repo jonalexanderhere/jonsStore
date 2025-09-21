@@ -14,7 +14,8 @@
     "setup:vercel": "node scripts/setup-vercel-database.js",
     "setup:complete": "node scripts/setup-complete-database.js",
     "test:advanced": "node scripts/advanced-testing.js",
-    "setup:jonsstore": "node scripts/setup-jonsstore-database.js"
+    "setup:jonsstore": "node scripts/setup-jonsstore-database.js",
+    "setup:production": "node scripts/setup-production-database.js"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

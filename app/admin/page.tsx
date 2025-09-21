@@ -70,13 +70,16 @@ export default function AdminDashboard() {
       try {
         const supabase = createClient()
         
-        // Fetch products
+        // Fetch products with real data
         const { data: productsData, error: productsError } = await supabase
           .from('products')
-          .select('*')
+          .select(`
+            *,
+            category:categories(name)
+          `)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
-          .limit(10)
+          .limit(20)
 
         if (productsError) {
           console.error('Error fetching products:', productsError)
@@ -181,7 +184,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container-professional py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard Admin</h1>

@@ -33,17 +33,23 @@ export default function AuthCallbackPage() {
 
           if (!existingUser) {
             // Create user profile if it doesn't exist
+            const userMetadata = data.session.user.user_metadata || {}
             const { error: profileError } = await supabase
               .from('users')
               .insert({
                 id: data.session.user.id,
                 email: data.session.user.email!,
-                full_name: data.session.user.user_metadata?.full_name || data.session.user.email!.split('@')[0],
-                role: data.session.user.user_metadata?.role || 'customer'
+                full_name: userMetadata.full_name || userMetadata.name || data.session.user.email!.split('@')[0],
+                phone: userMetadata.phone || null,
+                avatar_url: userMetadata.avatar_url || userMetadata.picture || null,
+                role: userMetadata.role || 'customer',
+                email_verified: data.session.user.email_confirmed_at ? true : false
               })
 
             if (profileError) {
               console.log('Profile creation error:', profileError.message)
+            } else {
+              console.log('User profile created successfully')
             }
           }
 
