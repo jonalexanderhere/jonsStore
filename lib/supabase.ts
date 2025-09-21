@@ -5,10 +5,19 @@ export const createClient = () => {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables')
+    console.error('Missing Supabase environment variables:', {
+      url: supabaseUrl ? 'present' : 'missing',
+      key: supabaseAnonKey ? 'present' : 'missing'
+    })
+    throw new Error('Missing Supabase environment variables. Please check your environment configuration.')
   }
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+  try {
+    return createBrowserClient(supabaseUrl, supabaseAnonKey)
+  } catch (error) {
+    console.error('Error creating Supabase client:', error)
+    throw new Error('Failed to create Supabase client. Please check your configuration.')
+  }
 }
 
 // Real-time subscription types
